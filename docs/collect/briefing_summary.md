@@ -27,7 +27,7 @@ The DevWorld Incident Management System serves as a crucial tool for ensuring th
 
 6. **Priority-Based Sorting**: Streamline incident dispatch with priority sorting for critical incidents.
 
-### MosSCoW
+## **MosSCoW**
 
 **Must-Haves:**
 
