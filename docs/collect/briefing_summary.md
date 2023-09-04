@@ -2,7 +2,8 @@
 ## **DevWorld** Stratergy Plan
 
 In partnership with:
-![Delos](../../images/mini_logos/delos.png) ![Bit](../../images/mini_logos/bit.png)
+![Delos](delos.png)
+![Bit](bit.png)
 
 ## **Introduction to the DevWorld Incident Management System**
 
@@ -26,7 +27,7 @@ The DevWorld Incident Management System serves as a crucial tool for ensuring th
 
 6. **Priority-Based Sorting**: Streamline incident dispatch with priority sorting for critical incidents.
 
-### MosSCoW
+## **MosSCoW**
 
 **Must-Haves:**
 
