@@ -2,7 +2,7 @@
 ## **DevWorld** Stratergy Plan
 
 In partnership with:
-![Delos](../../images/mini_logos/delos.png) ![Bit](../../images/mini_logos/bit.png)
+![Delos](delos.png) ![Bit](bit.png)
 
 ## **Introduction to the DevWorld Incident Management System**
 
