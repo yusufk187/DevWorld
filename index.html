@@ -44,7 +44,7 @@
       ];
 
       // Add the image overlay
-      var image = L.imageOverlay("./images/map.png", bounds).addTo(map);
+          var image = L.imageOverlay("./images/map.webp", bounds).addTo(map);
 
       // Set max bounds to limit panning
       map.setMaxBounds(bounds);
@@ -162,7 +162,7 @@
           .catch((error) => console.error("Error loading island.json:", error));
       }
 
-      showBorder();
+      // showBorder();  Staat uit omdat het niet nodig is om de border te laten zien
 
       loadPOIs();
 
