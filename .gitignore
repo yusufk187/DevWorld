@@ -3,3 +3,4 @@ backend/venv/
 backend/*.pyc
 backend/sqlite.db
 backend/sql3.db
+backend/db.sqlite3
