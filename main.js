@@ -163,7 +163,7 @@ function createIncidentIcon(incident, color) {
     // Apply color and custom filter to the icon based on severity
     switch (incident.severity) {
         case "Critical":
-            img.style.filter = `sepia(100%) saturate(10000%) hue-rotate(540deg) opacity(1) drop-shadow(0px 0px 3px ${color})`;
+            img.style.filter = `sepia(100%) saturate(10000%) hue-rotate(260deg) opacity(1) drop-shadow(0px 0px 3px ${color})`;
             break;
         case "High":
             img.style.filter = `sepia(100%) saturate(10000%) hue-rotate(330deg) opacity(1) drop-shadow(0px 0px 3px ${color})`;
@@ -190,7 +190,7 @@ function loadIncidents() {
         .then((data) => {
             const incidentMarkers = [];
             const clusterColors = {
-                Critical: "rgba(170, 0, 0, 0.5)",
+                Critical: "rgba(255, 0, 120, 0.5)",
                 High: "rgba(255, 165, 0, 0.5)",
                 Medium: "rgba(253, 218, 13, 0.5)",
                 Low: "rgba(24, 255, 255, 0.5)",
