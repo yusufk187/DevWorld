@@ -12,7 +12,7 @@ var bounds = [
 ];
 
 // Add the image overlay
-var image = L.imageOverlay("./images/map.gif", bounds).addTo(map);
+const image = L.imageOverlay("./images/map.gif", bounds).addTo(map);
 
 // Set max bounds to limit panning
 map.setMaxBounds(bounds);
@@ -93,34 +93,46 @@ function createCustomIcon(poi) {
             break;
     }
 
-    const customIcon = L.icon({
-        iconUrl: iconUrl,
-        iconSize: [32, 32],
-        // Other icon options like iconAnchor, popupAnchor, etc. can be configured here
-    });
+    // Create an image element
+    const img = new Image();
+    img.src = iconUrl;
+    img.width = 26;
+    img.height = 26;
 
-    // Apply color dynamically using CSS class
-    if (poi.color) {
-        customIcon.options.className = `icon-color-${poi.color}`;
+    // Apply the hue-rotate filter based on the narrative level
+    switch (poi.narrative_level) {
+        case "peaceful":
+            // Teal filter for peaceful
+            img.style.filter = "sepia(100%) saturate(10000%) hue-rotate(120deg)";
+            break;
+        case "violent":
+            // Orange filter for violent
+            img.style.filter = "sepia(100%) saturate(10000%) hue-rotate(333deg)";
+            break;
+        case "neutral":
+            // No rotation for neutral (0 degrees)
+            break;
+        default:
+            // grey filter for unknown narrative level
+            img.style.filter = "greyscale(100%)";
     }
+
+    // Create a custom Leaflet icon with the modified image
+    const customIcon = L.divIcon({ className: 'custom-icon', html: img });
 
     return customIcon;
 }
 
-function getColorClass(narrativeLevel) {
-    switch (narrativeLevel) {
-        case "peaceful":
-            return "icon-color-cyan";
-        case "violent":
-            return "icon-color-orange";
-        case "neutral":
-            return "icon-color-white";
-        default:
-            return "icon-color-gray";
-    }
+// Function to apply the hue-rotate filter to an image
+function applyHueRotateFilter(image, degrees) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    context.filter = `hue-rotate(${degrees}deg)`;
+    context.drawImage(image, 0, 0, image.width, image.height);
+    image.src = canvas.toDataURL();
 }
-
-
 
 function loadPOIs() {
     fetch("data/points_of_interest.json")
