@@ -170,3 +170,20 @@
 .crt {
   animation: textShadow 1.6s infinite;
 }
+
+/* Icon colours */
+.icon-color-cyan {
+  background-color: cyan;
+}
+
+.icon-color-orange {
+  background-color: orange;
+}
+
+.icon-color-white {
+  /* Default, no color overlay */
+}
+
+.icon-color-gray {
+  background-color: gray;
+}
