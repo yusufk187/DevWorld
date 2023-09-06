@@ -13,16 +13,16 @@
   max-height: fit-content;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: transparent; /* Remove background color */
-  border: none; /* Remove border */
-  box-shadow: none; /* Remove box shadow */
-  padding: 0; /* Remove padding */
+  background-color: transparent;
+  color: rgb(34, 221, 221);
 }
 
 .leaflet-popup-content-wrapper {
-  padding: 0; /* Remove inner padding */
+  border-radius: 100;
+  background-color: rgba(9, 22, 41, 0.8);
+  border: 2px solid rgb(34, 221, 221);
 }
 
 .leaflet-popup-tip-container {
-  display: none; /* Hide popup tip */
+  display: auto;
 }

@@ -167,7 +167,7 @@ function createIncidentIcon(incident) {
             color = "yellow"; // Customize the color for medium severity
             break;
         case "Low":
-            color = "green"; // Customize the color for low severity
+            color = "blue"; // Customize the color for low severity
             break;
         default:
             color = "gray"; // Default color for unknown severity
@@ -182,19 +182,19 @@ function createIncidentIcon(incident) {
     // Apply color and custom filter to the icon based on severity
     switch (incident.severity) {
         case "Critical":
-            img.style.filter = `brightness(100%) hue-rotate(0deg) saturate(100%) sepia(0%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
+            img.style.filter = `sepia(100%) saturate(10000%) hue-rotate(540deg) opacity(1) drop-shadow(0px 0px 3px ${color})`;
             break;
         case "High":
-            img.style.filter = `brightness(100%) hue-rotate(0deg) saturate(100%) sepia(0%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
+            img.style.filter = `sepia(100%) saturate(10000%) hue-rotate(330deg) opacity(1) drop-shadow(0px 0px 3px ${color})`;
             break;
         case "Medium":
-            img.style.filter = `brightness(100%) hue-rotate(0deg) saturate(100%) sepia(0%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
+            img.style.filter = `sepia(100%) saturate(10000%) hue-rotate(20deg) sepia(100%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
             break;
         case "Low":
-            img.style.filter = `brightness(100%) hue-rotate(0deg) saturate(100%) sepia(0%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
+            img.style.filter = `sepia(100%) saturate(10000%) hue-rotate(120deg) opacity(1) drop-shadow(0px 0px 3px ${color})`;
             break;
         default:
-            img.style.filter = `brightness(100%) hue-rotate(0deg) saturate(100%) sepia(0%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
+            img.style.filter = `brightness(100%) hue-rotate(0deg) saturate(100%) sepia(100%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
     }
 
     // Create a custom Leaflet icon with the modified image
@@ -202,7 +202,6 @@ function createIncidentIcon(incident) {
 
     return customIcon;
 }
-
 
 function loadIncidents() {
     fetch("data/incident_reports.json")
@@ -258,11 +257,6 @@ function loadIncidents() {
         );
 }
 
-
-// Call the POI and incident functions
-loadIncidents();
-loadPOIs();
-
 // Create a Leaflet control for the coordinate display
 const coordControl = L.control({ position: "topright" });
 
@@ -301,3 +295,7 @@ function showBorder() {
 
 // Uncomment the line below if you want to show the border
 // showBorder();
+
+// Call the POI and incident functions
+loadIncidents();
+loadPOIs();
