@@ -1,12 +1,12 @@
 // Create a Leaflet map with CRS.Simple
-var map = L.map("map", {
+const map = L.map("map", {
     crs: L.CRS.Simple,
     minZoom: -1,
     maxZoom: 1,
 }).setView([1024, 1024], -1);
 
 // Define bounds for the image overlay
-var bounds = [
+const bounds = [
     [0, 0],
     [2048, 2048],
 ];
@@ -123,17 +123,6 @@ function createCustomIcon(poi) {
     return customIcon;
 }
 
-// Function to apply the hue-rotate filter to an image
-function applyHueRotateFilter(image, degrees) {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    canvas.width = image.width;
-    canvas.height = image.height;
-    context.filter = `hue-rotate(${degrees}deg)`;
-    context.drawImage(image, 0, 0, image.width, image.height);
-    image.src = canvas.toDataURL();
-}
-
 function loadPOIs() {
     fetch("data/points_of_interest.json")
         .then((response) => response.json())
@@ -142,7 +131,6 @@ function loadPOIs() {
                 let lat = poi.latitude;
                 let lng = poi.longitude;
                 let { color, shape } = getPOIMarkerOptions(poi);
-
                 let customIcon = createCustomIcon(poi);
                 let marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
 
@@ -162,26 +150,119 @@ function loadPOIs() {
         );
 }
 
-function showBorder() {
-    fetch("objects/island.json")
-        .then((response) => response.json())
-        .then((data) => {
-            // Add the scaled and flipped coordinates as a polyline to the map
-            L.polyline(data.features[0].geometry.coordinates[0], {
-                color: "red",
-                weight: 2,
-            }).addTo(map);
-        })
-        .catch((error) => console.error("Error loading island.json:", error));
+function createIncidentIcon(incident) {
+    // Define the icon URL for all incident types
+    const iconUrl = `images/symbols/warning.png`; // Replace with your custom image URL
+
+    // Create an image element
+    const img = new Image();
+    img.src = iconUrl;
+    img.width = 26;
+    img.height = 26;
+
+    // Customize the icon based on incident properties (e.g., severity, narrative_level)
+    switch (incident.severity) {
+        case "Critical":
+            img.style.filter = "brightness(50%)"; // Apply a filter for critical severity
+            break;
+        // Add more customizations based on severity or other incident properties
+    }
+
+    // Create a custom Leaflet icon with the modified image
+    const customIcon = L.divIcon({ className: 'custom-icon', html: img });
+
+    return customIcon;
 }
 
-// Uncomment the line below if you want to show the border
-// showBorder();
+function loadIncidents() {
+    fetch("data/incident_reports.json")
+        .then((response) => response.json())
+        .then((data) => {
+            const incidentMarkers = [];
 
+            data.forEach((incident) => {
+                let lat = incident.latitude;
+                let lng = incident.longitude;
+                let customIcon = createIncidentIcon(incident); // Create a custom incident icon based on incident properties
+
+                let marker = L.marker([lat, lng], { icon: customIcon });
+                marker.incident_id = incident.incident_id; // Store incident_id as a property of the marker
+                marker.bindPopup(
+                    `<b>Incident ID:</b> ${incident.incident_id}<br>
+                    <b>Timestamp:</b> ${incident.timestamp}<br>
+                    <b>Type:</b> ${incident.type}<br>
+                    <b>Severity:</b> ${incident.severity}<br>
+                    <b>Point of Interest:</b> ${incident.point_of_interest}`,
+                    {
+                        autoPan: true,
+                    }
+                );
+
+                incidentMarkers.push(marker);
+            });
+
+            // Create a cluster group and add the incident markers to it
+            const incidentsCluster = L.markerClusterGroup();
+            incidentsCluster.addLayers(incidentMarkers);
+
+            // Add the cluster group to the map
+            map.addLayer(incidentsCluster);
+
+            // Handle cluster click event to display the modal
+            incidentsCluster.on("clusterclick", function (event) {
+                displayClusterModal(event.layer.getAllChildMarkers());
+            });
+        })
+        .catch((error) =>
+            console.error("Error loading incident_reports.json:", error)
+        );
+}
+
+function displayClusterModal(incidentMarkers) {
+    // Create a modal to display the list of issues
+    const modal = document.createElement("div");
+    modal.className = "incident-cluster-modal";
+
+    // Create a list of buttons for each issue in the cluster
+    incidentMarkers.forEach((marker) => {
+        const issueButton = document.createElement("button");
+        issueButton.textContent = `Incident ID: ${marker.incident_id}`;
+        issueButton.addEventListener("click", () => {
+            // Display a modal with full incident info when the button is clicked
+            displayIncidentInfoModal(marker);
+        });
+        modal.appendChild(issueButton);
+    });
+
+    // Add the modal to the DOM
+    document.body.appendChild(modal);
+}
+
+function displayIncidentInfoModal(marker) {
+    // Create a modal to display full incident info
+    const modal = document.createElement("div");
+    modal.className = "incident-info-modal";
+
+    // Customize the content of the modal based on the marker's incident data
+    modal.innerHTML = `
+        <b>Incident ID:</b> ${marker.incident_id}<br>
+        <b>Timestamp:</b> ${marker.timestamp}<br>
+        <b>Type:</b> ${marker.type}<br>
+        <b>Severity:</b> ${marker.severity}<br>
+        <b>Point of Interest:</b> ${marker.point_of_interest}<br>
+        <b>Description:</b> ${marker.description}
+    `;
+
+    // Add the modal to the DOM
+    document.body.appendChild(modal);
+}
+
+// Call the POI and incident functions
+loadIncidents();
 loadPOIs();
 
 // Create a Leaflet control for the coordinate display
-var coordControl = L.control({ position: "topright" });
+const coordControl = L.control({ position: "topright" });
 
 coordControl.onAdd = function (map) {
     this._div = L.DomUtil.create("div", "coordinate-display");
@@ -202,3 +283,19 @@ map.on("mousemove", function (event) {
 
 // Add the control to the map
 coordControl.addTo(map);
+
+function showBorder() {
+    fetch("objects/island.json")
+        .then((response) => response.json())
+        .then((data) => {
+            // Add the scaled and flipped coordinates as a polyline to the map
+            L.polyline(data.features[0].geometry.coordinates[0], {
+                color: "red",
+                weight: 2,
+            }).addTo(map);
+        })
+        .catch((error) => console.error("Error loading island.json:", error));
+}
+
+// Uncomment the line below if you want to show the border
+// showBorder();
