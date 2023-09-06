@@ -150,28 +150,9 @@ function loadPOIs() {
         );
 }
 
-function createIncidentIcon(incident) {
+function createIncidentIcon(incident, color) {
     // Define the icon URL for the incident
     const iconUrl = "images/symbols/warning.png"; // Replace with your custom image URL
-
-    // Customize the icon color based on severity
-    let color;
-    switch (incident.severity) {
-        case "Critical":
-            color = "red"; // Customize the color for critical severity
-            break;
-        case "High":
-            color = "orange"; // Customize the color for high severity
-            break;
-        case "Medium":
-            color = "yellow"; // Customize the color for medium severity
-            break;
-        case "Low":
-            color = "blue"; // Customize the color for low severity
-            break;
-        default:
-            color = "gray"; // Default color for unknown severity
-    }
 
     // Create an image element
     const img = new Image();
@@ -208,6 +189,38 @@ function loadIncidents() {
         .then((response) => response.json())
         .then((data) => {
             const incidentMarkers = [];
+            const clusterColors = {
+                Critical: "rgba(170, 0, 0, 0.5)",
+                High: "rgba(255, 165, 0, 0.5)",
+                Medium: "rgba(253, 218, 13, 0.5)",
+                Low: "rgba(24, 255, 255, 0.5)",
+                default: "rgba(0, 0, 255, 0.5)",
+            };
+
+            // Define cluster options here
+            const clusterOptions = {
+                iconCreateFunction: function (cluster) {
+                    const clusterMarkers = cluster.getAllChildMarkers();
+                    let clusterColor = clusterColors.default;
+
+                    for (const marker of clusterMarkers) {
+                        const severity = marker.incidentSeverity;
+                        const color = clusterColors[severity] || clusterColors.default;
+
+                        // If a marker with a higher severity is found in the cluster, use its color
+                        if (clusterColors[severity] && clusterColors[severity] !== "blue") {
+                            clusterColor = clusterColors[severity];
+                            break;
+                        }
+                    }
+
+                    return L.divIcon({
+                        html: `<div class="custom-cluster-icon" style="background-color: ${clusterColor}">${cluster.getChildCount()}</div>`,
+                        className: "custom-cluster",
+                        iconSize: [40, 40], // Set the icon size as needed
+                    });
+                },
+            };
 
             data.forEach((incident) => {
                 let lat = incident.latitude;
@@ -222,15 +235,18 @@ function loadIncidents() {
                     return;
                 }
 
-                let customIcon = createIncidentIcon(incident); // Create a custom incident icon based on incident properties
+                let severity = incident.severity;
+
+                let customIcon = createIncidentIcon(incident, clusterColors[severity]);
 
                 let marker = L.marker([lat, lng], { icon: customIcon });
                 marker.incident_id = incident.incident_id; // Store incident_id as a property of the marker
+                marker.incidentSeverity = severity; // Store incident severity as a property of the marker
                 marker.bindPopup(
                     `<b>Incident ID:</b> ${incident.incident_id}<br>
                     <b>Timestamp:</b> ${incident.timestamp}<br>
                     <b>Type:</b> ${incident.type}<br>
-                    <b>Severity:</b> ${incident.severity}<br>
+                    <b>Severity:</b> ${severity}<br>
                     <b>Point of Interest:</b> ${incident.point_of_interest}`,
                     {
                         autoPan: true,
@@ -240,8 +256,8 @@ function loadIncidents() {
                 incidentMarkers.push(marker);
             });
 
-            // Create a cluster group and add the incident markers to it
-            const incidentsCluster = L.markerClusterGroup();
+            // Create a cluster group with custom cluster options
+            const incidentsCluster = L.markerClusterGroup(clusterOptions);
             incidentsCluster.addLayers(incidentMarkers);
 
             // Add the cluster group to the map
@@ -256,6 +272,8 @@ function loadIncidents() {
             console.error("Error loading incident_reports.json:", error)
         );
 }
+
+
 
 // Create a Leaflet control for the coordinate display
 const coordControl = L.control({ position: "topright" });
