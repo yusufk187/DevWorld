@@ -151,8 +151,27 @@ function loadPOIs() {
 }
 
 function createIncidentIcon(incident) {
-    // Define the icon URL for all incident types
-    const iconUrl = `images/symbols/warning.png`; // Replace with your custom image URL
+    // Define the icon URL for the incident
+    const iconUrl = "images/symbols/warning.png"; // Replace with your custom image URL
+
+    // Customize the icon color based on severity
+    let color;
+    switch (incident.severity) {
+        case "Critical":
+            color = "red"; // Customize the color for critical severity
+            break;
+        case "High":
+            color = "orange"; // Customize the color for high severity
+            break;
+        case "Medium":
+            color = "yellow"; // Customize the color for medium severity
+            break;
+        case "Low":
+            color = "green"; // Customize the color for low severity
+            break;
+        default:
+            color = "gray"; // Default color for unknown severity
+    }
 
     // Create an image element
     const img = new Image();
@@ -160,12 +179,22 @@ function createIncidentIcon(incident) {
     img.width = 26;
     img.height = 26;
 
-    // Customize the icon based on incident properties (e.g., severity, narrative_level)
+    // Apply color and custom filter to the icon based on severity
     switch (incident.severity) {
         case "Critical":
-            img.style.filter = "brightness(50%)"; // Apply a filter for critical severity
+            img.style.filter = `brightness(100%) hue-rotate(0deg) saturate(100%) sepia(0%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
             break;
-        // Add more customizations based on severity or other incident properties
+        case "High":
+            img.style.filter = `brightness(100%) hue-rotate(0deg) saturate(100%) sepia(0%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
+            break;
+        case "Medium":
+            img.style.filter = `brightness(100%) hue-rotate(0deg) saturate(100%) sepia(0%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
+            break;
+        case "Low":
+            img.style.filter = `brightness(100%) hue-rotate(0deg) saturate(100%) sepia(0%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
+            break;
+        default:
+            img.style.filter = `brightness(100%) hue-rotate(0deg) saturate(100%) sepia(0%) opacity(1) drop-shadow(0px 0px 3px ${color})`;
     }
 
     // Create a custom Leaflet icon with the modified image
@@ -173,6 +202,7 @@ function createIncidentIcon(incident) {
 
     return customIcon;
 }
+
 
 function loadIncidents() {
     fetch("data/incident_reports.json")
@@ -183,6 +213,16 @@ function loadIncidents() {
             data.forEach((incident) => {
                 let lat = incident.latitude;
                 let lng = incident.longitude;
+
+                // Define the boundary (latitude and longitude below which incidents are skipped)
+                const boundaryLat = 120;
+                const boundaryLng = 120;
+
+                // Skip incidents outside of the boundary
+                if (lat < boundaryLat || lng < boundaryLng) {
+                    return;
+                }
+
                 let customIcon = createIncidentIcon(incident); // Create a custom incident icon based on incident properties
 
                 let marker = L.marker([lat, lng], { icon: customIcon });
@@ -218,44 +258,6 @@ function loadIncidents() {
         );
 }
 
-function displayClusterModal(incidentMarkers) {
-    // Create a modal to display the list of issues
-    const modal = document.createElement("div");
-    modal.className = "incident-cluster-modal";
-
-    // Create a list of buttons for each issue in the cluster
-    incidentMarkers.forEach((marker) => {
-        const issueButton = document.createElement("button");
-        issueButton.textContent = `Incident ID: ${marker.incident_id}`;
-        issueButton.addEventListener("click", () => {
-            // Display a modal with full incident info when the button is clicked
-            displayIncidentInfoModal(marker);
-        });
-        modal.appendChild(issueButton);
-    });
-
-    // Add the modal to the DOM
-    document.body.appendChild(modal);
-}
-
-function displayIncidentInfoModal(marker) {
-    // Create a modal to display full incident info
-    const modal = document.createElement("div");
-    modal.className = "incident-info-modal";
-
-    // Customize the content of the modal based on the marker's incident data
-    modal.innerHTML = `
-        <b>Incident ID:</b> ${marker.incident_id}<br>
-        <b>Timestamp:</b> ${marker.timestamp}<br>
-        <b>Type:</b> ${marker.type}<br>
-        <b>Severity:</b> ${marker.severity}<br>
-        <b>Point of Interest:</b> ${marker.point_of_interest}<br>
-        <b>Description:</b> ${marker.description}
-    `;
-
-    // Add the modal to the DOM
-    document.body.appendChild(modal);
-}
 
 // Call the POI and incident functions
 loadIncidents();

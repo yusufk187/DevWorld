@@ -1,19 +1,28 @@
-
 #map {
-    height: 100vh;
-    width: 100vw;
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
 
-  .leaflet-popup-content {
-    max-width: 200px;
-    max-height: 150px;
-    overflow-y: auto;
-  }
+/* Override Leaflet popup styles */
+.leaflet-popup-content {
+  max-width: fit-content;
+  max-height: fit-content;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: transparent; /* Remove background color */
+  border: none; /* Remove border */
+  box-shadow: none; /* Remove box shadow */
+  padding: 0; /* Remove padding */
+}
 
-  .leaflet-popup-content-wrapper {
-    padding: 1px;
-  }
+.leaflet-popup-content-wrapper {
+  padding: 0; /* Remove inner padding */
+}
 
-  .leaflet-popup-tip-container {
-    display: none;
-  }
+.leaflet-popup-tip-container {
+  display: none; /* Hide popup tip */
+}
