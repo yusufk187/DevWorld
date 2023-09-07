@@ -162,12 +162,13 @@ function loadIncidents() {
             marker.incidentSeverity = incident.severity;
             marker.bindPopup(
                 `<b>Incident ID:</b> ${incident.incident_id}<br>
-            <b>Timestamp:</b> ${incident.timestamp}<br>
-            <b>Type:</b> ${incident.type}<br>
-            <b>Severity:</b> ${incident.severity}<br>
-            <b>Point of Interest:</b> ${incident.point_of_interest}`,
-              { autoPan: true }
-          );
+                <b>Timestamp:</b> ${incident.timestamp}<br>
+                <b>Type:</b> ${incident.type}<br>
+                <b>Severity:</b> ${incident.severity}<br>
+                <b>Point of Interest:</b> ${incident.point_of_interest}<br>
+                <button id="delete-${incident.incident_id}">Verwijderen</button>`,
+                { autoPan: true }
+            );
 
             incidentMarkers.push(marker);
         });
@@ -183,6 +184,23 @@ function loadIncidents() {
       })
         .catch(error => console.error("Error loading incident_reports.json:", error));
 }
+
+function deleteIncident(incidentId, marker) {
+    fetch('http://localhost:3000/delete-incident', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ incident_id: incidentId }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message === 'Incident deleted') {
+        map.removeLayer(marker);
+      }
+    })
+    .catch(error => console.error("Error deleting incident:", error));
+  }  
 
 function getIncidentTypes() {
     fetch("data/incident_reports.json")
@@ -230,5 +248,17 @@ function showBorder() {
   // Uncomment the line below if you want to show the border
   // showBorder();
 
+  map.on('popupopen', function(e) {
+    const incidentId = e.popup._source.incident_id;
+    const marker = e.popup._source;
+    const deleteButton = document.getElementById(`delete-${incidentId}`);
+  
+    if (deleteButton) {
+      deleteButton.addEventListener('click', function() {
+        deleteIncident(incidentId, marker);
+      });
+    }
+  });
+  
 loadIncidents();
 loadPOIs();
