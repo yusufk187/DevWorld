@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "members",
     "contact",
 ]
@@ -66,20 +65,27 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
+
         },
     },
-]
+]   
 
 WSGI_APPLICATION = "devworld.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME':  'devworld',
+        'USER':   'bit_academy',
+        'PASSWORD': 'bit_academy',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'OPTION': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLE"
+        }
     }
 }
 
@@ -123,4 +129,7 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+<<<<<<< HEAD
+=======
 AUTH_USER_MODEL = 'members.CustomUser'
+>>>>>>> 9ac3a276eabf3a605ceb0bbf9e1e1ed8dbb7d904
