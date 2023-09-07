@@ -206,18 +206,6 @@ function loadIncidents() {
         .catch(error => console.error("Error loading incident_reports.json:", error));
 }
 
-const coordControl = L.control({ position: "topright" });
-
-coordControl.onAdd = function (map) {
-    const div = L.DomUtil.create("div", "coordinate-display");
-    div.innerHTML = "Hover over the map";
-    div.style.color = "white";
-    this._div = div; // Store the div reference here
-    return this._div;
-};
-
-coordControl.addTo(map);
-
 map.on("mousemove", function (event) {
     var lat = event.latlng.lat;
     var lng = event.latlng.lng;

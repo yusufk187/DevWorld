@@ -9,6 +9,12 @@ function handleMapClick(event) {
     }
 }
 
+// Function to get lat/lng values from the click event
+function getLatLng(event) {
+    const { lat, lng } = event.latlng;
+    return { lat, lng };
+}
+
 // Step 2: Check if the click is within the map bounds
 function isWithinBounds(lat, lng) {
     // Add your custom bounds checking logic here
@@ -35,43 +41,43 @@ function setCurrentTimestamp() {
     return timestamp;
 }
 
-// Function to find the current user's location to a POI
-function findMarkerLocation(lat, lng) {
-    return fetch("data/points_of_interest.json")
-        .then(response => response.json())
-        .then(data => {
-            const userLocation = { lat, lng };
-            const nearestPOI = findNearestPOI(userLocation, data.features);
-            return nearestPOI ? nearestPOI.title : "No closest POI found";
-        });
-}
-
-// Helper function to find the nearest POI
-function findNearestPOI(userLocation, poiData) {
-    let nearestDistance = Infinity;
+async function findMarkerLocation(lat, lng) {
+    const response = await fetch("data/points_of_interest.json");
+    const data = await response.json();
+    const userLocation = { lat, lng };
     let nearestPOI = null;
+    let nearestDistance = Number.MAX_VALUE;
 
-    poiData.forEach(poi => {
-        const poiLat = poi.latitude;
-        const poiLng = poi.longitude;
+    for (const poi of data) {
+        const poiLocation = { lat: poi.latitude, lng: poi.longitude };
+        // Calculate the absolute numerical difference for latitude and longitude
+        const latDiff = Math.abs(poiLocation.lat - userLocation.lat);
+        const lngDiff = Math.abs(poiLocation.lng - userLocation.lng);
 
-        const latDiff = Math.abs(userLocation.lat - poiLat);
-        const lngDiff = Math.abs(userLocation.lng - poiLng);
+        // Calculate the total difference as a sum of latitude and longitude differences
+        const totalDiff = latDiff + lngDiff;
 
-        // Calculate a simple "distance" based on lat and lng differences
-        const distance = latDiff + lngDiff;
-
-        if (distance < nearestDistance) {
-            nearestDistance = distance;
-            nearestPOI = poi;
+        if (totalDiff < nearestDistance) {
+            nearestPOI = poi.title; // Store the title of the nearest POI
+            nearestDistance = totalDiff;
         }
-    });
+    }
 
     return nearestPOI;
 }
 
+async function main() {
+    const userLat = getLatLng().lat;
+    const userLng = getLatLng().lng;
+
+    const nearestPOI = await findMarkerLocation(userLat, userLng);
+    console.log("Nearest Point of Interest: " + nearestPOI);
+}
+
+main();
+
 // Step 3: Implement a function to display the modal and accept lat/lng as arguments
-function displayModal(lat, lng) {
+async function displayModal(lat, lng) {
     // Create a modal container
     const modalContainer = document.createElement('div');
     modalContainer.classList.add(
@@ -150,14 +156,17 @@ function displayModal(lat, lng) {
     // Add an event listener to close the modal when the "Cancel" button is clicked
     const cancelButton = modalContainer.querySelector('#modalCancelButton');
     cancelButton.addEventListener('click', () => {
+        const audio = new Audio('sound/close.mp3');
+        audio.play();
         document.body.removeChild(modalContainer);
     });
 
     // Add an event listener for the "Save Changes" button (You can implement the functionality here)
     const saveButton = modalContainer.querySelector('#modalSaveButton');
     saveButton.addEventListener('click', () => {
-        // Implement your save changes logic here
-        // After saving changes, you can close the modal
+        // Play a sound effect
+        const audio = new Audio('sound/open.mp3');
+        audio.play();
         document.body.removeChild(modalContainer);
     });
 
@@ -173,7 +182,7 @@ function displayModal(lat, lng) {
 
     // Find the nearest POI
     const poiElement = document.getElementById('poiValue');
-    const nearestPOI = findMarkerLocation(); // Call the function to get the nearest POI
+    const nearestPOI = await findMarkerLocation(lat, lng); // Await the result
     poiElement.textContent = nearestPOI; // Set the POI in the HTML
 }
 
