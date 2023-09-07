@@ -15397,15 +15397,5 @@
     "longitude": 1126,
     "incident_id": "INC-2023-09-07-70",
     "timestamp": "2023-09-07T17:09:53.580Z"
-  },
-  {
-    "type": "Decor destroyed",
-    "severity": "Critical",
-    "description": "test",
-    "latitude": 1153.5,
-    "longitude": 1191,
-    "incident_id": "INC-2023-09-07-696",
-    "timestamp": "2023-09-07T17:16:20.578Z",
-    "point_of_interest": "Sweetwater"
   }
 ]

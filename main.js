@@ -208,6 +208,7 @@ function loadIncidents() {
                 marker.incidentSeverity = incident.severity;
 
                 const popupContent = document.createElement('div');
+                popupContent.classList.add('custom-popup');
                 popupContent.innerHTML = `
                     <div class="bg-teal-300 px-4 py-3 rounded-t-md">
                         <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">Incident Report</h2>
@@ -252,6 +253,12 @@ function loadIncidents() {
         })
         .catch(error => console.error("Error loading incident_reports.json:", error));
 }
+
+// PLay sound on custom popup open
+map.on('popupopen', function (e) {
+    const audio = new Audio('sound/open.mp3');
+    audio.play();
+});
 
 function deleteIncident(incidentId, marker) {
     fetch('http://localhost:3000/delete-incident', {
