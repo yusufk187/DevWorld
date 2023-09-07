@@ -39,10 +39,3 @@
   position: relative;
   /* Add this to allow absolute positioning of the outer circle */
 }
-/* Reset image styles applied by Tailwind CSS */
-/* Use a specific class or ID for your images */
-.custom-image {
-  max-width: none;
-  height: 22px;
-  width: 22px;
-}
