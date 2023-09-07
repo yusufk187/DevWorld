@@ -5,3 +5,6 @@ backend/sqlite.db
 backend/sql3.db
 backend/db.sqlite3
 backend/**/*.pyc
+env/
+venv/
+*.pyc
