@@ -6,14 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="style.css"></link>
+    <script src="https://cdn.tailwindcss.com"></script>
+
     
 </head>
 <body>
-    <form>
-		<input class = "input" type="text" id="username" placeholder="Choose Username">
-		<input class = "input" type="password" id="password" placeholer="Choose Password">
-		<button class = "btn" type="button" onclick="getInfo()">Click Me</button>
-	</form>
+
+    <div class="h-screen font-sans login bg-cover flex justify-center items-center">
+        <div class="max-w-lg">
+          <div class="leading-loose bg-transparent rounded p-10">
+            <form class="max-w-sm m-4">
+              <p class="text-white font-medium text-center text-lg font-bold">LOGIN</p>
+              <div class="mt-4">
+                <label class="block text-sm text-white" for="name">Name</label>
+                <input class=" input  px-5 py-1 text-gray-700 bg-gray-300 rounded focus:outline-none focus:bg-white"
+                  type="text" id="username" placeholder="Choose Username" aria-label="text" required>
+              </div>
+              <div class="mt-2">
+                <label class="block text-sm text-white">Password</label>
+                <input class=" input w-full px-5 py-1 text-gray-700 bg-gray-300 rounded focus:outline-none focus:bg-white"
+                  type="password" id="password"  placeholder="Choose Password" arial-label="password" required>
+              </div>
+              <div class="mt-4 flex justify-center">
+                <button class=" btn px-4 py-1 text-white font-light tracking-wider bg-gray-900 hover:bg-gray-800 rounded"
+                  type="button" onclick="getInfo()">Enter</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+
 </body>
 <script src="script.js" charset="utf-8"></script>
 </html>
+
+
+
+
+
