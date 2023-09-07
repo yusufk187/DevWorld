@@ -1,7 +1,7 @@
 const map = L.map("map", {
     crs: L.CRS.Simple,
-    minZoom: -1,
-    maxZoom: 1,
+    minZoom: -1.5,
+    maxZoom: 4,
 }).setView([1024, 1024], -1);
 
 const bounds = [
@@ -93,8 +93,8 @@ function createIncidentIcon(incident, color) {
 
     const img = new Image();
     img.src = iconUrl;
-    img.width = 26;
-    img.height = 26;
+    img.width = 22;
+    img.height = 22;
 
       const filters = {
           Critical: `sepia(100%) saturate(10000%) hue-rotate(260deg) opacity(1) drop-shadow(0px 0px 3px ${color})`,
@@ -141,7 +141,7 @@ function loadIncidents() {
                 return L.divIcon({
                     html: `<div class="custom-cluster-icon" style="background-color: ${clusterColor}">${cluster.getChildCount()}</div>`,
                     className: "custom-cluster",
-                iconSize: [40, 40],
+                iconSize: [32, 32],
             });
               },
           };
