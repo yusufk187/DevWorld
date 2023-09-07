@@ -41,6 +41,7 @@ function setCurrentTimestamp() {
     return timestamp;
 }
 
+// Function to find the nearest POI
 async function findMarkerLocation(lat, lng) {
     const response = await fetch("data/points_of_interest.json");
     const data = await response.json();
@@ -65,16 +66,6 @@ async function findMarkerLocation(lat, lng) {
 
     return nearestPOI;
 }
-
-async function main() {
-    const userLat = getLatLng().lat;
-    const userLng = getLatLng().lng;
-
-    const nearestPOI = await findMarkerLocation(userLat, userLng);
-    console.log("Nearest Point of Interest: " + nearestPOI);
-}
-
-main();
 
 // Step 3: Implement a function to display the modal and accept lat/lng as arguments
 async function displayModal(lat, lng) {
@@ -140,12 +131,17 @@ async function displayModal(lat, lng) {
                     </select>
                 </div>
 
+                <div class="mb-4">
+                    <label for="description" class="block font-semibold mb-2">Describe the incident</label>
+                    <textarea id="description" name="description" required class="w-full px-3 py-2 border rounded-sm bg-transparent"></textarea>
+                </div>
+
             </form>
         </div>
 
         <!-- Modal Buttons -->
         <div class="flex justify-end p-4 sm:p-7 dark:bg-slate-900">
-            <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="modalSaveButton">File Incident</button>
+            <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="modalSaveButton" onclick="submitForm()">File Incident</button>
             <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="modalCancelButton">Cancel report</button>
         </div>
     `;
@@ -161,12 +157,13 @@ async function displayModal(lat, lng) {
         document.body.removeChild(modalContainer);
     });
 
-    // Add an event listener for the "Save Changes" button (You can implement the functionality here)
+    // Add an event listener for the "Save Changes" button
     const saveButton = modalContainer.querySelector('#modalSaveButton');
-    saveButton.addEventListener('click', () => {
+    saveButton.addEventListener('click', async () => {
         // Play a sound effect
         const audio = new Audio('sound/open.mp3');
         audio.play();
+        // Close the modal
         document.body.removeChild(modalContainer);
     });
 
@@ -186,6 +183,6 @@ async function displayModal(lat, lng) {
     poiElement.textContent = nearestPOI; // Set the POI in the HTML
 }
 
+
 // Step 4: Attach the onClick event handler to the map
 map.on("click", handleMapClick);
-

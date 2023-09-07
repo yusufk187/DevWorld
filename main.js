@@ -206,12 +206,6 @@ function loadIncidents() {
         .catch(error => console.error("Error loading incident_reports.json:", error));
 }
 
-map.on("mousemove", function (event) {
-    var lat = event.latlng.lat;
-    var lng = event.latlng.lng;
-    coordControl._div.innerHTML = `Lat: ${lat.toFixed(2)}, Lng: ${lng.toFixed(2)}`;
-});
-
 function showBorder() {
     fetch("objects/island.json")
         .then(response => response.json())
