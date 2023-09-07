@@ -13,40 +13,40 @@ L.imageOverlay("./images/map.gif", bounds).addTo(map);
 map.setMaxBounds(bounds);
 
 function getPOIMarkerOptions(poi) {
-      const shapeMapping = {
-          facility: "facility",
-          town: "town",
-          region: "region",
-          landmark: "landmark",
-          charge: "charge",
-          construction: "construction",
-          industrial: "industrial",
-          info: "info",
-          target: "target",
-          warning: "warning",
-      };
+    const shapeMapping = {
+        facility: "facility",
+        town: "town",
+        region: "region",
+        landmark: "landmark",
+        charge: "charge",
+        construction: "construction",
+        industrial: "industrial",
+        info: "info",
+        target: "target",
+        warning: "warning",
+    };
 
-      const colorMapping = {
-          peaceful: "cyan",
-          violent: "orange",
-          neutral: "white",
-      };
+    const colorMapping = {
+        peaceful: "cyan",
+        violent: "orange",
+        neutral: "white",
+    };
 
-      const shape = shapeMapping[poi.type] || "circle";
-      const color = colorMapping[poi.narrative_level] || "gray";
+    const shape = shapeMapping[poi.type] || "circle";
+    const color = colorMapping[poi.narrative_level] || "gray";
 
     return { color, shape };
 }
 
 function createCustomIcon(poi) {
-      const iconTypes = [
-          "facility", "town", "region", "landmark", "charge",
-          "construction", "industrial", "info", "target", "warning"
-      ];
+    const iconTypes = [
+        "facility", "town", "region", "landmark", "charge",
+        "construction", "industrial", "info", "target", "warning"
+    ];
 
-      const iconUrl = iconTypes.includes(poi.type)
-          ? `images/symbols/${poi.type}.png`
-          : `images/symbols/info.png`;
+    const iconUrl = iconTypes.includes(poi.type)
+        ? `images/symbols/${poi.type}.png`
+        : `images/symbols/info.png`;
 
     const img = new Image();
     img.src = iconUrl;
@@ -54,17 +54,46 @@ function createCustomIcon(poi) {
     img.height = 26;
     img.classList.add("custom-image");
 
-      const filters = {
-          peaceful: "sepia(100%) saturate(10000%) hue-rotate(120deg)",
-          violent: "sepia(100%) saturate(10000%) hue-rotate(333deg)",
-          neutral: "",
-      };
+    const filters = {
+        peaceful: "sepia(100%) saturate(10000%) hue-rotate(120deg)",
+        violent: "sepia(100%) saturate(10000%) hue-rotate(333deg)",
+        neutral: "",
+    };
 
-      img.style.filter = filters[poi.narrative_level] || "greyscale(100%)";
+    img.style.filter = filters[poi.narrative_level] || "greyscale(100%)";
 
     const customIcon = L.divIcon({ className: 'custom-icon', html: img });
 
     return customIcon;
+}
+
+function createCustomPopup(poi) {
+    const popupContent = document.createElement('div');
+    popupContent.innerHTML = `
+        <div class="bg-teal-300 px-4 py-3 rounded-t-md">
+            <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">Point of Interest</h2>
+        </div>
+
+        <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white">
+            <p><b>Title:</b> ${poi.title}</p>
+            <p><b>Type:</b> ${poi.type}</p>
+            <p><b>Narrative Level:</b> ${poi.narrative_level}</p>
+            <p>${poi.description}</p>
+        </div>
+        
+    `;
+
+    // Get the Leaflet popup wrapper element
+    const popupWrapper = popupContent.closest('.leaflet-popup');
+
+    // Apply custom styles to the popup wrapper
+    if (popupWrapper) {
+        popupWrapper.style.backgroundColor = 'transparent';
+        popupWrapper.style.boxShadow = 'none';
+        popupWrapper.style.border = 'none';
+    }
+
+    return popupContent;
 }
 
 function loadPOIs() {
@@ -77,15 +106,10 @@ function loadPOIs() {
                 const customIcon = createCustomIcon(poi);
                 const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
 
-                marker.bindPopup(
-                    `<b>Title:</b> ${poi.title}<br>
-            <b>Type:</b> ${poi.type}<br>
-            <b>Narrative Level:</b> ${poi.narrative_level}<br>
-            ${poi.description}`,
-              { autoPan: true }
-          );
-        });
-      })
+                // Bind the custom popup content to the marker
+                marker.bindPopup(createCustomPopup(poi), { autoPan: true });
+            });
+        })
         .catch(error => console.error("Error loading points_of_interest.json:", error));
 }
 
@@ -132,11 +156,10 @@ function createIncidentIcon(incident) {
     return customIcon;
 }
 
-
 function loadIncidents() {
     fetch("data/incident_reports.json")
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
             const incidentMarkers = [];
             const clusterColors = {
                 Critical: "rgba(255, 0, 120, 0.5)",
@@ -146,96 +169,253 @@ function loadIncidents() {
                 default: "rgba(0, 0, 255, 0.5)",
             };
 
-          const clusterOptions = {
-            iconCreateFunction: cluster => {
-                const clusterMarkers = cluster.getAllChildMarkers();
-                let clusterColor = clusterColors.default;
+            const clusterOptions = {
+                iconCreateFunction: (cluster) => {
+                    const clusterMarkers = cluster.getAllChildMarkers();
+                    let clusterColor = clusterColors.default;
 
-                for (const marker of clusterMarkers) {
-                    const severity = marker.incidentSeverity;
-                    const color = clusterColors[severity] || clusterColors.default;
+                    for (const marker of clusterMarkers) {
+                        const severity = marker.incidentSeverity;
+                        const color = clusterColors[severity] || clusterColors.default;
 
-                    if (clusterColors[severity] && clusterColors[severity] !== "blue") {
-                        clusterColor = clusterColors[severity];
-                        break;
+                        if (clusterColors[severity] && clusterColors[severity] !== "blue") {
+                            clusterColor = clusterColors[severity];
+                            break;
+                        }
                     }
+
+                    return L.divIcon({
+                        html: `<div class="custom-cluster-icon" style="background-color: ${clusterColor}">${cluster.getChildCount()}</div>`,
+                        className: "custom-cluster",
+                        iconSize: [32, 32],
+                    });
+                },
+            };
+
+            data.forEach((incident) => {
+                const { latitude: lat, longitude: lng } = incident;
+                const boundaryLat = 120;
+                const boundaryLng = 120;
+
+                if (lat < boundaryLat || lng < boundaryLng) {
+                    return;
                 }
 
-                return L.divIcon({
-                    html: `<div class="custom-cluster-icon" style="background-color: ${clusterColor}">${cluster.getChildCount()}</div>`,
-                    className: "custom-cluster",
-                iconSize: [32, 32],
+                const customIcon = createIncidentIcon(incident, clusterColors[incident.severity]);
+
+                const marker = L.marker([lat, lng], { icon: customIcon });
+                marker.incident_id = incident.incident_id;
+                marker.incidentSeverity = incident.severity;
+
+                const popupContent = document.createElement("div");
+                popupContent.classList.add("custom-popup");
+                popupContent.innerHTML = `
+            <div class="flex justify-center flex-col">
+            <div class="bg-teal-300 px-4 py-3 rounded-t-md text-center">
+                <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">Incident Report</h2>
+            </div>
+            <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white text-center">
+                <p><b>Incident ID:</b> ${incident.incident_id}</p>
+                <p><b>Timestamp:</b> ${incident.timestamp}</p>
+                <p><b>Type:</b> ${incident.type}</p>
+                <p><b>Severity:</b> ${incident.severity}</p>
+                <p><b>Point of Interest:</b> ${incident.point_of_interest}</p>
+                <p>Description: ${incident.description}</p>
+                <div class="mb-4 flex justify-center items-center gap-2 px-2 pr-2 mx-4">
+                    <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="editIncident">Edit Incident</button>
+                    <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="delete-${incident.incident_id}">Remove report</button>
+                </div>
+            </div>
+        </div>
+        
+        `;
+
+                // Get the Leaflet popup wrapper element
+                const popupWrapper = popupContent.closest(".leaflet-popup");
+
+                // Apply custom styles to the popup wrapper
+                if (popupWrapper) {
+                    popupWrapper.style.backgroundColor = "transparent";
+                    popupWrapper.style.boxShadow = "none";
+                    popupWrapper.style.border = "none";
+                }
+
+                marker.bindPopup(popupContent, { autoPan: true });
+
+                // Add an event listener to the "Edit Incident" button inside the popup
+                const editButton = popupContent.querySelector("#editIncident");
+                editButton.addEventListener("click", () => {
+                    editIncident(incident.incident_id, marker);
+                });
+
+                incidentMarkers.push(marker);
             });
-              },
-          };
 
-          data.forEach(incident => {
-              const { latitude: lat, longitude: lng } = incident;
-              const boundaryLat = 120;
-              const boundaryLng = 120;
+            const incidentsCluster = L.markerClusterGroup(clusterOptions);
+            incidentsCluster.addLayers(incidentMarkers);
+            map.addLayer(incidentsCluster);
 
-            if (lat < boundaryLat || lng < boundaryLng) {
-                return;
+            incidentsCluster.on("clusterclick", (event) => {
+                displayClusterModal(event.layer.getAllChildMarkers());
+            });
+        })
+        .catch((error) => console.error("Error loading incident_reports.json:", error));
+
+// Function to edit an incident when the "Edit Incident" button is clicked
+function editIncident(incidentId, marker) {
+    // Get the incident data from the marker
+    const incident = {
+        incident_id: incidentId,
+        type: marker.incidentType, // Use marker properties
+        severity: marker.incidentSeverity, // Use marker properties
+        description: marker.incidentDescription, // Use marker properties
+    };
+
+    // Create a modal container for editing
+    const editModalContainer = document.createElement('div');
+    editModalContainer.classList.add(
+        'fixed', 'top-1/2', 'left-1/2', 'transform', '-translate-x-1/2', '-translate-y-1/2',
+        'bg-black', 'bg-opacity-60', 'shadow-lg', 'rounded-md', 'text-white', 'z-50'
+    );
+
+    // Add the HTML content to the edit modal container
+    editModalContainer.innerHTML = `
+    <!-- Modal Header -->
+    <div class="bg-teal-300 px-4 py-3 rounded-t-md">
+        <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">Edit Incident Report</h2>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white">
+        <form id="editIncidentForm">
+
+            <input type="hidden" name="incident_id" value="${incident.incident_id}">
+
+            <div class="mb-4">
+                <label for="type" class="block font-semibold mb-2">Incident Type</label>
+                <select id="editType" name="type" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
+                    <option value="Decor destroyed">Decor destroyed</option>
+                    <option value="Terrain destroyed">Terrain destroyed</option>
+                    <option value="Narrative ended">Narrative ended</option>
+                    <option value="Malfunction">Malfunction</option>
+                    <option value="Host Destroyed">Host Destroyed</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="severity" class="block font-semibold mb-2">Severity</label>
+                <select id="editSeverity" name="severity" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
+                    <option value="Critical">Critical</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="description" class="block font-semibold mb-2">Description</label>
+                <textarea id="editDescription" name="description" required class="w-full px-3 py-2 border rounded-sm bg-transparent"></textarea>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Modal Buttons -->
+    <div class="flex justify-end p-4 sm:p-7">
+        <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="editModalSaveButton">Save Changes</button>
+        <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="editModalCancelButton">Cancel</button>
+    </div>
+`;
+
+    // Set initial values in the edit form
+    const editTypeInput = editModalContainer.querySelector('#editType');
+    const editSeverityInput = editModalContainer.querySelector('#editSeverity');
+    const editDescriptionInput = editModalContainer.querySelector('#editDescription');
+    editTypeInput.value = incident.type;
+    editSeverityInput.value = incident.severity;
+    editDescriptionInput.value = incident.description;
+
+    // Add an event listener to close the edit modal when the "Cancel" button is clicked
+    const editModalCancelButton = editModalContainer.querySelector('#editModalCancelButton');
+    editModalCancelButton.addEventListener('click', () => {
+        document.body.removeChild(editModalContainer);
+    });
+
+    // Add an event listener for the "Save Changes" button
+    const editModalSaveButton = editModalContainer.querySelector('#editModalSaveButton');
+    editModalSaveButton.addEventListener('click', async () => {
+        // Get the edited data from the form
+        const editedIncident = {
+            incident_id: incident.incident_id,
+            type: editTypeInput.value,
+            severity: editSeverityInput.value,
+            description: editDescriptionInput.value,
+        };
+
+        // Send the edited data to the server for updating
+        try {
+            const response = await fetch('http://localhost:3000/update-incident', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(editedIncident),
+            });
+
+            if (response.ok) {
+                // Data was successfully updated, you can handle success here
+                console.log('Incident data updated successfully');
+            } else {
+                // Handle any errors that may occur during the request
+                console.error('Failed to update incident data');
+                console.error(response);
             }
+        } catch (error) {
+            console.error('Error while updating incident data:', error);
+        }
 
-            const customIcon = createIncidentIcon(incident, clusterColors[incident.severity]);
+        // Close the edit modal
+        document.body.removeChild(editModalContainer);
 
-            const marker = L.marker([lat, lng], { icon: customIcon });
-            marker.incident_id = incident.incident_id;
-            marker.incidentSeverity = incident.severity;
-            marker.bindPopup(
-                `<b>Incident ID:</b> ${incident.incident_id}<br>
-                <b>Timestamp:</b> ${incident.timestamp}<br>
-                <b>Type:</b> ${incident.type}<br>
-                <b>Severity:</b> ${incident.severity}<br>
-                <b>Point of Interest:</b> ${incident.point_of_interest}<br>
-                <button id="delete-${incident.incident_id}">Verwijderen</button>`,
-                { autoPan: true }
-            );
+        // Update the incident marker with the edited data
+        marker.incidentType = editedIncident.type;
+        marker.incidentSeverity = editedIncident.severity;
+        marker.incidentDescription = editedIncident.description;
 
-            incidentMarkers.push(marker);
-        });
+        // Update the popup content to reflect the changes
+        marker.getPopup().setContent(createCustomPopup(marker));
+    });
 
-          const incidentsCluster = L.markerClusterGroup(clusterOptions);
-          incidentsCluster.addLayers(incidentMarkers);
-          map.addLayer(incidentsCluster);
-
-          incidentsCluster.on("clusterclick", event => {
-              displayClusterModal(event.layer.getAllChildMarkers());
-          });
-
-      })
-        .catch(error => console.error("Error loading incident_reports.json:", error));
+    // Append the edit modal container to the body
+    document.body.appendChild(editModalContainer);
 }
+}
+
+map.on('popupopen', function (e) {
+    const audio = new Audio('sound/open.mp3');
+    audio.play();
+});
 
 function deleteIncident(incidentId, marker) {
     fetch('http://localhost:3000/delete-incident', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ incident_id: incidentId }),
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ incident_id: incidentId }),
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.message === 'Incident deleted') {
-        map.removeLayer(marker);
-      }
-    })
-    .catch(error => console.error("Error deleting incident:", error));
-  }  
-
-function getIncidentTypes() {
-    fetch("data/incident_reports.json")
         .then(response => response.json())
         .then(data => {
-            const incidentTypes = [...new Set(data.map(incident => incident.type))];
-            console.log(incidentTypes);
+            if (data.message === 'Incident deleted') {
+                const audio = new Audio('sound/close.mp3');
+                audio.play();
+                setTimeout(function () {
+                    map.removeLayer(marker);
+                }, 1000);
+            }
         })
-        .catch(error => console.error("Error loading incident_reports.json:", error));
+        .catch(error => console.error("Error deleting incident:", error));
 }
-
-getIncidentTypes();
 
 const coordControl = L.control({ position: "topright" });
 
@@ -249,10 +429,22 @@ coordControl.onAdd = function (map) {
 
 coordControl.addTo(map);
 
-map.on("mousemove", function (event) {
-    var lat = event.latlng.lat;
-    var lng = event.latlng.lng;
-    coordControl._div.innerHTML = `Lat: ${lat.toFixed(2)}, Lng: ${lng.toFixed(2)}`;
+map.on('popupopen', function (e) {
+    const incidentId = e.popup._source.incident_id;
+    const marker = e.popup._source;
+    const deleteButton = document.getElementById(`delete-${incidentId}`);
+
+    if (deleteButton) {
+        deleteButton.addEventListener('click', function () {
+            // Play a sound effect
+            const audio = new Audio('sound/close.mp3');
+            audio.play();
+            // 1 second delay before deleting the marker
+            setTimeout(function () {
+                deleteIncident(incidentId, marker);
+            }, 1000);
+        });
+    }
 });
 
 function showBorder() {
@@ -267,28 +459,36 @@ function showBorder() {
         .catch(error => console.error("Error loading island.json:", error));
 }
 
-  // Uncomment the line below if you want to show the border
-  // showBorder();
+// Uncomment the line below if you want to show the border
+// showBorder();
 
-  map.on('popupopen', function(e) {
+map.on('popupopen', function (e) {
     const incidentId = e.popup._source.incident_id;
     const marker = e.popup._source;
     const deleteButton = document.getElementById(`delete-${incidentId}`);
-  
-    if (deleteButton) {
-      deleteButton.addEventListener('click', function() {
-        deleteIncident(incidentId, marker);
-      });
-    }
-  });
-  
-loadIncidents();
-loadPOIs();
 
+    if (deleteButton) {
+        deleteButton.addEventListener('click', function () {
+            const audio = new Audio('sound/close.mp3');
+            audio.play();
+            setTimeout(function () {
+                deleteIncident(incidentId, marker);
+            }, 1000);
+        });
+    }
+});
+
+// Add a variable to track whether a modal is currently open
+let isModalOpen = false;
 
 // Step 1: Create a function to handle the onClick event
 function handleMapClick(event) {
     const { lat, lng } = event.latlng;
+
+    // Check if a modal is already open
+    if (isModalOpen) {
+        return;
+    }
 
     // Check if the click is within the map bounds
     if (isWithinBounds(lat, lng)) {
@@ -357,6 +557,10 @@ async function findMarkerLocation(lat, lng) {
 
 // Step 3: Implement a function to display the modal and accept lat/lng as arguments
 async function displayModal(lat, lng) {
+
+    // Set the modal open flag to true
+    isModalOpen = true;
+
     // Create a modal container
     const modalContainer = document.createElement('div');
     modalContainer.classList.add(
@@ -366,73 +570,73 @@ async function displayModal(lat, lng) {
 
     // Add the HTML content to the modal container
     modalContainer.innerHTML = `
-        <!-- Modal Header -->
-        <div class="bg-teal-300 px-4 py-3 rounded-t-md">
-            <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">New Incident Report</h2>
-        </div>
+            <!-- Modal Header -->
+            <div class="bg-teal-300 px-4 py-3 rounded-t-md">
+                <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">New Incident Report</h2>
+            </div>
 
-        <!-- Modal Content -->
-        <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white">
-            <form id="incidentForm">
+            <!-- Modal Content -->
+            <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white">
+                <form id="incidentForm">
 
-                <div class="mb-4">
-                    <p>Incident ID: <span id="incidentId"></span></p>
-                </div>
-                
-                <div class="mb-4">
-                    <p>Timestamp: <span id="timestamp"></span></p>
-                </div>
+                    <div class="mb-4">
+                        <p>Incident ID: <span id="incidentId"></span></p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p>Timestamp: <span id="timestamp"></span></p>
+                    </div>
 
-                <div class="mb-4">
-                    <div class="flex space-x-4">
-                        <div class="w-1/2">
-                            <p id="latitudeValue">Latitude: ${lat}</p>
-                        </div>
-                        <div class="w-1/2">
-                            <p id="longitudeValue">Longitude: ${lng}</p>
+                    <div class="mb-4">
+                        <div class="flex space-x-4">
+                            <div class="w-1/2">
+                                <p id="latitudeValue">Latitude: ${lat}</p>
+                            </div>
+                            <div class="w-1/2">
+                                <p id="longitudeValue">Longitude: ${lng}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="mb-4">
-                    <p>Closest POI: <span id="poiValue"></span></p>
-                </div>
+                    <div class="mb-4">
+                        <p>Closest POI: <span id="poiValue"></span></p>
+                    </div>
 
-                <div class="mb-4">
-                    <label for="type" class="block font-semibold mb-2">Incident Type</label>
-                    <select id="type" name="type" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
-                        <option value="Decor destroyed">Decor destroyed</option>
-                        <option value="Terrain destroyed">Terrain destroyed</option>
-                        <option value="Narrative ended">Narrative ended</option>
-                        <option value="Malfunction">Malfunction</option>
-                        <option value="Host Destroyed">Host Destroyed</option>
-                    </select>
-                </div>
-      
-                <div class="mb-4">
-                    <label for="severity" class="block font-semibold mb-2">Severity</label>
-                    <select id="severity" name="severity" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
-                        <option value="Critical">Critical</option>
-                        <option value="High">High</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Low">Low</option>
-                    </select>
-                </div>
+                    <div class="mb-4">
+                        <label for="type" class="block font-semibold mb-2">Incident Type</label>
+                        <select id="type" name="type" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
+                            <option value="Decor destroyed">Decor destroyed</option>
+                            <option value="Terrain destroyed">Terrain destroyed</option>
+                            <option value="Narrative ended">Narrative ended</option>
+                            <option value="Malfunction">Malfunction</option>
+                            <option value="Host Destroyed">Host Destroyed</option>
+                        </select>
+                    </div>
+        
+                    <div class="mb-4">
+                        <label for="severity" class="block font-semibold mb-2">Severity</label>
+                        <select id="severity" name="severity" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
+                            <option value="Critical">Critical</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
 
-                <div class="mb-4">
-                    <label for="description" class="block font-semibold mb-2">Describe the incident</label>
-                    <textarea id="description" name="description" required class="w-full px-3 py-2 border rounded-sm bg-transparent"></textarea>
-                </div>
+                    <div class="mb-4">
+                        <label for="description" class="block font-semibold mb-2">Describe the incident</label>
+                        <textarea id="description" name="description" required class="w-full px-3 py-2 border rounded-sm bg-transparent"></textarea>
+                    </div>
 
-            </form>
-        </div>
+                </form>
+            </div>
 
-        <!-- Modal Buttons -->
-        <div class="flex justify-end p-4 sm:p-7 dark:bg-slate-900">
-            <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="modalSaveButton" onclick="submitForm()">File Incident</button>
-            <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="modalCancelButton">Cancel report</button>
-        </div>
-    `;
+            <!-- Modal Buttons -->
+            <div class="flex justify-end p-4 sm:p-7">
+                <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="modalSaveButton">File Incident</button>
+                <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="modalCancelButton">Cancel report</button>
+            </div>
+        `;
 
     // Append the modal container to the body
     document.body.appendChild(modalContainer);
@@ -443,34 +647,85 @@ async function displayModal(lat, lng) {
         const audio = new Audio('sound/close.mp3');
         audio.play();
         document.body.removeChild(modalContainer);
+        // Set the modal open flag to false when the modal is closed
+        isModalOpen = false;
     });
 
     // Add an event listener for the "Save Changes" button
     const saveButton = modalContainer.querySelector('#modalSaveButton');
     saveButton.addEventListener('click', async () => {
-        // Play a sound effect
-        const audio = new Audio('sound/open.mp3');
-        audio.play();
+
+        // Gather form data
+        const incidentForm = document.getElementById('incidentForm');
+        const formData = new FormData(incidentForm);
+
+        // Convert form data to a plain JavaScript object
+        const formDataObject = {};
+        formData.forEach((value, key) => {
+            formDataObject[key] = value;
+        });
+
+        // Add additional data like latitude, longitude, incident ID, and timestamp
+        formDataObject.latitude = lat;
+        formDataObject.longitude = lng;
+        formDataObject.incident_id = generateIncidentID();
+        formDataObject.timestamp = setCurrentTimestamp();
+        formDataObject.point_of_interest = await findMarkerLocation(lat, lng);
+
+
+        // Send the form data to the server for processing and storage
+        try {
+            const response = await fetch('http://localhost:3000/save-incident', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formDataObject),
+            });
+
+            if (response.ok) {
+                // Data was successfully saved, you can handle success here
+                console.log('Incident data saved successfully');
+            } else {
+                // Handle any errors that may occur during the request
+                console.error('Failed to save incident data');
+                console.error(response);
+            }
+        } catch (error) {
+            console.error('Error while saving incident data:', error);
+        }
+
         // Close the modal
         document.body.removeChild(modalContainer);
+        // Set the modal open flag to false when the modal is closed
+        isModalOpen = false;
     });
 
     // Auto-generate and set the incident ID value
     const incidentIdElement = document.getElementById('incidentId');
-    const generatedIncidentID = generateIncidentID(); // Call the function and store the result
-    incidentIdElement.textContent = generatedIncidentID; // Set the generated ID in the HTML
+    const generatedIncidentID = generateIncidentID();
+    incidentIdElement.textContent = generatedIncidentID;
 
     // Set the current timestamp value
     const timestampElement = document.getElementById('timestamp');
-    const currentTimestamp = setCurrentTimestamp(); // Call the function to get the timestamp
-    timestampElement.textContent = currentTimestamp; // Set the timestamp in the HTML
+    const currentTimestamp = setCurrentTimestamp();
+    timestampElement.textContent = currentTimestamp;
 
     // Find the nearest POI
     const poiElement = document.getElementById('poiValue');
-    const nearestPOI = await findMarkerLocation(lat, lng); // Await the result
-    poiElement.textContent = nearestPOI; // Set the POI in the HTML
+    const nearestPOI = await findMarkerLocation(lat, lng);
+    poiElement.textContent = nearestPOI;
 }
 
+// Functions
+map.on("click", async (e) => {
+    // Play a sound effect
+    const audio = new Audio('sound/open.mp3');
+    audio.play();
 
-// Step 4: Attach the onClick event handler to the map
-map.on("click", handleMapClick);
+    // Call the handleMapClick function with the event and perform other actions as needed
+    handleMapClick(e);
+});
+
+loadIncidents();
+loadPOIs();
