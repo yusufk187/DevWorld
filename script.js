@@ -19,7 +19,7 @@ function getInfo() {
 		if(username == objPeople[i].username && password == objPeople[i].password) {
 			console.log(username + " is logged in!!!")
 			// stop the function if this is found to be true
-            window.location.href = '/index.html'
+            window.location.href = '/map.html'
 			return
             
 		}
