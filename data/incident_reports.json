@@ -15388,14 +15388,5 @@
     "type": "Malfunction",
     "severity": "Medium",
     "point_of_interest": "Maeve's Homestead"
-  },
-  {
-    "type": "Decor destroyed",
-    "severity": "Critical",
-    "description": "",
-    "latitude": 804,
-    "longitude": 214,
-    "incident_id": "INC-2023-09-07-656",
-    "timestamp": "2023-09-07T15:58:38.837Z"
   }
 ]

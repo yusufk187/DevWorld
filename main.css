@@ -9,27 +9,35 @@
 
 /* leaflet container */
 .leaflet-container {
-  background-color: rgba(9, 22, 41,1); 
+  background-color: rgba(9, 22, 41, 1);
 }
+
 /* Override Leaflet popup styles */
 .leaflet-popup-content {
-  max-width: fit-content;
-  max-height: fit-content;
+  max-width: none;
+  max-height: none;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: transparent;
-  color: rgb(34, 221, 221);
+  background-color: rgba(9, 22, 41, 0.8);
+  color: white;
+  padding: 1rem;
+  /* Adjust padding as needed */
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 100;
-  background-color: rgba(9, 22, 41, 0.8);
-  border: 2px solid rgb(34, 221, 221);
+  border-radius: 0;
+  /* Remove border-radius */
+  background-color: transparent;
+  /* Remove background-color */
+  border: none;
+  /* Remove border */
 }
 
 .leaflet-popup-tip-container {
-  display: auto;
+  display: none;
+  /* Hide the tip */
 }
+
 .custom-cluster-icon {
   width: 30px;
   height: 30px;
@@ -43,6 +51,7 @@
   position: relative;
   /* Add this to allow absolute positioning of the outer circle */
 }
+
 /* Reset image styles applied by Tailwind CSS */
 /* Use a specific class or ID for your images */
 .custom-image {

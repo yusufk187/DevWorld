@@ -269,9 +269,17 @@ map.on('popupopen', function (e) {
     }
 });
 
+// Add a variable to track whether a modal is currently open
+let isModalOpen = false;
+
 // Step 1: Create a function to handle the onClick event
 function handleMapClick(event) {
     const { lat, lng } = event.latlng;
+
+    // Check if a modal is already open
+    if (isModalOpen) {
+        return;
+    }
 
     // Check if the click is within the map bounds
     if (isWithinBounds(lat, lng)) {
@@ -340,6 +348,10 @@ async function findMarkerLocation(lat, lng) {
 
 // Step 3: Implement a function to display the modal and accept lat/lng as arguments
 async function displayModal(lat, lng) {
+
+    // Set the modal open flag to true
+    isModalOpen = true;
+
     // Create a modal container
     const modalContainer = document.createElement('div');
     modalContainer.classList.add(
@@ -426,6 +438,8 @@ async function displayModal(lat, lng) {
         const audio = new Audio('sound/close.mp3');
         audio.play();
         document.body.removeChild(modalContainer);
+        // Set the modal open flag to false when the modal is closed
+        isModalOpen = false;
     });
 
     // Add an event listener for the "Save Changes" button
@@ -475,6 +489,8 @@ async function displayModal(lat, lng) {
 
         // Close the modal
         document.body.removeChild(modalContainer);
+        // Set the modal open flag to false when the modal is closed
+        isModalOpen = false;
     });
 
     // Auto-generate and set the incident ID value
