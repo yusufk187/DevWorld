@@ -13,40 +13,40 @@ L.imageOverlay("./images/map.gif", bounds).addTo(map);
 map.setMaxBounds(bounds);
 
 function getPOIMarkerOptions(poi) {
-      const shapeMapping = {
-          facility: "facility",
-          town: "town",
-          region: "region",
-          landmark: "landmark",
-          charge: "charge",
-          construction: "construction",
-          industrial: "industrial",
-          info: "info",
-          target: "target",
-          warning: "warning",
-      };
+    const shapeMapping = {
+        facility: "facility",
+        town: "town",
+        region: "region",
+        landmark: "landmark",
+        charge: "charge",
+        construction: "construction",
+        industrial: "industrial",
+        info: "info",
+        target: "target",
+        warning: "warning",
+    };
 
-      const colorMapping = {
-          peaceful: "cyan",
-          violent: "orange",
-          neutral: "white",
-      };
+    const colorMapping = {
+        peaceful: "cyan",
+        violent: "orange",
+        neutral: "white",
+    };
 
-      const shape = shapeMapping[poi.type] || "circle";
-      const color = colorMapping[poi.narrative_level] || "gray";
+    const shape = shapeMapping[poi.type] || "circle";
+    const color = colorMapping[poi.narrative_level] || "gray";
 
     return { color, shape };
 }
 
 function createCustomIcon(poi) {
-      const iconTypes = [
-          "facility", "town", "region", "landmark", "charge",
-          "construction", "industrial", "info", "target", "warning"
-      ];
+    const iconTypes = [
+        "facility", "town", "region", "landmark", "charge",
+        "construction", "industrial", "info", "target", "warning"
+    ];
 
-      const iconUrl = iconTypes.includes(poi.type)
-          ? `images/symbols/${poi.type}.png`
-          : `images/symbols/info.png`;
+    const iconUrl = iconTypes.includes(poi.type)
+        ? `images/symbols/${poi.type}.png`
+        : `images/symbols/info.png`;
 
     const img = new Image();
     img.src = iconUrl;
@@ -54,13 +54,13 @@ function createCustomIcon(poi) {
     img.height = 26;
     img.classList.add("custom-image");
 
-      const filters = {
-          peaceful: "sepia(100%) saturate(10000%) hue-rotate(120deg)",
-          violent: "sepia(100%) saturate(10000%) hue-rotate(333deg)",
-          neutral: "",
-      };
+    const filters = {
+        peaceful: "sepia(100%) saturate(10000%) hue-rotate(120deg)",
+        violent: "sepia(100%) saturate(10000%) hue-rotate(333deg)",
+        neutral: "",
+    };
 
-      img.style.filter = filters[poi.narrative_level] || "greyscale(100%)";
+    img.style.filter = filters[poi.narrative_level] || "greyscale(100%)";
 
     const customIcon = L.divIcon({ className: 'custom-icon', html: img });
 
@@ -82,10 +82,10 @@ function loadPOIs() {
             <b>Type:</b> ${poi.type}<br>
             <b>Narrative Level:</b> ${poi.narrative_level}<br>
             ${poi.description}`,
-              { autoPan: true }
-          );
-        });
-      })
+                    { autoPan: true }
+                );
+            });
+        })
         .catch(error => console.error("Error loading points_of_interest.json:", error));
 }
 
@@ -132,7 +132,6 @@ function createIncidentIcon(incident) {
     return customIcon;
 }
 
-
 function loadIncidents() {
     fetch("data/incident_reports.json")
         .then(response => response.json())
@@ -146,96 +145,84 @@ function loadIncidents() {
                 default: "rgba(0, 0, 255, 0.5)",
             };
 
-          const clusterOptions = {
-            iconCreateFunction: cluster => {
-                const clusterMarkers = cluster.getAllChildMarkers();
-                let clusterColor = clusterColors.default;
+            const clusterOptions = {
+                iconCreateFunction: cluster => {
+                    const clusterMarkers = cluster.getAllChildMarkers();
+                    let clusterColor = clusterColors.default;
 
-                for (const marker of clusterMarkers) {
-                    const severity = marker.incidentSeverity;
-                    const color = clusterColors[severity] || clusterColors.default;
+                    for (const marker of clusterMarkers) {
+                        const severity = marker.incidentSeverity;
+                        const color = clusterColors[severity] || clusterColors.default;
 
-                    if (clusterColors[severity] && clusterColors[severity] !== "blue") {
-                        clusterColor = clusterColors[severity];
-                        break;
+                        if (clusterColors[severity] && clusterColors[severity] !== "blue") {
+                            clusterColor = clusterColors[severity];
+                            break;
+                        }
                     }
+
+                    return L.divIcon({
+                        html: `<div class="custom-cluster-icon" style="background-color: ${clusterColor}">${cluster.getChildCount()}</div>`,
+                        className: "custom-cluster",
+                        iconSize: [32, 32],
+                    });
+                },
+            };
+
+            data.forEach(incident => {
+                const { latitude: lat, longitude: lng } = incident;
+                const boundaryLat = 120;
+                const boundaryLng = 120;
+
+                if (lat < boundaryLat || lng < boundaryLng) {
+                    return;
                 }
 
-                return L.divIcon({
-                    html: `<div class="custom-cluster-icon" style="background-color: ${clusterColor}">${cluster.getChildCount()}</div>`,
-                    className: "custom-cluster",
-                iconSize: [32, 32],
-            });
-              },
-          };
+                const customIcon = createIncidentIcon(incident, clusterColors[incident.severity]);
 
-          data.forEach(incident => {
-              const { latitude: lat, longitude: lng } = incident;
-              const boundaryLat = 120;
-              const boundaryLng = 120;
-
-            if (lat < boundaryLat || lng < boundaryLng) {
-                return;
-            }
-
-            const customIcon = createIncidentIcon(incident, clusterColors[incident.severity]);
-
-            const marker = L.marker([lat, lng], { icon: customIcon });
-            marker.incident_id = incident.incident_id;
-            marker.incidentSeverity = incident.severity;
-            marker.bindPopup(
-                `<b>Incident ID:</b> ${incident.incident_id}<br>
+                const marker = L.marker([lat, lng], { icon: customIcon });
+                marker.incident_id = incident.incident_id;
+                marker.incidentSeverity = incident.severity;
+                marker.bindPopup(
+                    `<b>Incident ID:</b> ${incident.incident_id}<br>
                 <b>Timestamp:</b> ${incident.timestamp}<br>
                 <b>Type:</b> ${incident.type}<br>
                 <b>Severity:</b> ${incident.severity}<br>
                 <b>Point of Interest:</b> ${incident.point_of_interest}<br>
                 <button id="delete-${incident.incident_id}">Verwijderen</button>`,
-                { autoPan: true }
-            );
+                    { autoPan: true }
+                );
 
-            incidentMarkers.push(marker);
-        });
+                incidentMarkers.push(marker);
+            });
 
-          const incidentsCluster = L.markerClusterGroup(clusterOptions);
-          incidentsCluster.addLayers(incidentMarkers);
-          map.addLayer(incidentsCluster);
+            const incidentsCluster = L.markerClusterGroup(clusterOptions);
+            incidentsCluster.addLayers(incidentMarkers);
+            map.addLayer(incidentsCluster);
 
-          incidentsCluster.on("clusterclick", event => {
-              displayClusterModal(event.layer.getAllChildMarkers());
-          });
+            incidentsCluster.on("clusterclick", event => {
+                displayClusterModal(event.layer.getAllChildMarkers());
+            });
 
-      })
+        })
         .catch(error => console.error("Error loading incident_reports.json:", error));
 }
 
 function deleteIncident(incidentId, marker) {
     fetch('http://localhost:3000/delete-incident', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ incident_id: incidentId }),
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ incident_id: incidentId }),
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.message === 'Incident deleted') {
-        map.removeLayer(marker);
-      }
-    })
-    .catch(error => console.error("Error deleting incident:", error));
-  }  
-
-function getIncidentTypes() {
-    fetch("data/incident_reports.json")
         .then(response => response.json())
         .then(data => {
-            const incidentTypes = [...new Set(data.map(incident => incident.type))];
-            console.log(incidentTypes);
+            if (data.message === 'Incident deleted') {
+                map.removeLayer(marker);
+            }
         })
-        .catch(error => console.error("Error loading incident_reports.json:", error));
+        .catch(error => console.error("Error deleting incident:", error));
 }
-
-getIncidentTypes();
 
 const coordControl = L.control({ position: "topright" });
 
@@ -267,24 +254,20 @@ function showBorder() {
         .catch(error => console.error("Error loading island.json:", error));
 }
 
-  // Uncomment the line below if you want to show the border
-  // showBorder();
+// Uncomment the line below if you want to show the border
+// showBorder();
 
-  map.on('popupopen', function(e) {
+map.on('popupopen', function (e) {
     const incidentId = e.popup._source.incident_id;
     const marker = e.popup._source;
     const deleteButton = document.getElementById(`delete-${incidentId}`);
-  
-    if (deleteButton) {
-      deleteButton.addEventListener('click', function() {
-        deleteIncident(incidentId, marker);
-      });
-    }
-  });
-  
-loadIncidents();
-loadPOIs();
 
+    if (deleteButton) {
+        deleteButton.addEventListener('click', function () {
+            deleteIncident(incidentId, marker);
+        });
+    }
+});
 
 // Step 1: Create a function to handle the onClick event
 function handleMapClick(event) {
@@ -429,7 +412,7 @@ async function displayModal(lat, lng) {
 
         <!-- Modal Buttons -->
         <div class="flex justify-end p-4 sm:p-7 dark:bg-slate-900">
-            <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="modalSaveButton" onclick="submitForm()">File Incident</button>
+            <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="modalSaveButton">File Incident</button>
             <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="modalCancelButton">Cancel report</button>
         </div>
     `;
@@ -451,26 +434,66 @@ async function displayModal(lat, lng) {
         // Play a sound effect
         const audio = new Audio('sound/open.mp3');
         audio.play();
+
+        // Gather form data
+        const incidentForm = document.getElementById('incidentForm');
+        const formData = new FormData(incidentForm);
+
+        // Convert form data to a plain JavaScript object
+        const formDataObject = {};
+        formData.forEach((value, key) => {
+            formDataObject[key] = value;
+        });
+
+        // Add additional data like latitude, longitude, incident ID, and timestamp
+        formDataObject.latitude = lat;
+        formDataObject.longitude = lng;
+        formDataObject.incident_id = generateIncidentID();
+        formDataObject.timestamp = setCurrentTimestamp();
+
+        // Send the form data to the server for processing and storage
+        try {
+            const response = await fetch('http://localhost:3000/save-incident', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formDataObject),
+            });
+
+            if (response.ok) {
+                // Data was successfully saved, you can handle success here
+                console.log('Incident data saved successfully');
+            } else {
+                // Handle any errors that may occur during the request
+                console.error('Failed to save incident data');
+                console.error(response);
+            }
+        } catch (error) {
+            console.error('Error while saving incident data:', error);
+        }
+
         // Close the modal
         document.body.removeChild(modalContainer);
     });
 
     // Auto-generate and set the incident ID value
     const incidentIdElement = document.getElementById('incidentId');
-    const generatedIncidentID = generateIncidentID(); // Call the function and store the result
-    incidentIdElement.textContent = generatedIncidentID; // Set the generated ID in the HTML
+    const generatedIncidentID = generateIncidentID();
+    incidentIdElement.textContent = generatedIncidentID;
 
     // Set the current timestamp value
     const timestampElement = document.getElementById('timestamp');
-    const currentTimestamp = setCurrentTimestamp(); // Call the function to get the timestamp
-    timestampElement.textContent = currentTimestamp; // Set the timestamp in the HTML
+    const currentTimestamp = setCurrentTimestamp();
+    timestampElement.textContent = currentTimestamp;
 
     // Find the nearest POI
     const poiElement = document.getElementById('poiValue');
-    const nearestPOI = await findMarkerLocation(lat, lng); // Await the result
-    poiElement.textContent = nearestPOI; // Set the POI in the HTML
+    const nearestPOI = await findMarkerLocation(lat, lng);
+    poiElement.textContent = nearestPOI;
 }
 
-
-// Step 4: Attach the onClick event handler to the map
+// Functions
 map.on("click", handleMapClick);
+loadIncidents();
+loadPOIs();

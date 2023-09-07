@@ -31,6 +31,30 @@ app.post('/delete-incident', (req, res) => {
   });
 });
 
+app.post('/save-incident', (req, res) => {
+  console.log('Handling POST request for /save-incident'); // Debugging statement
+
+  const incidentData = req.body;
+  const filePath = path.join(__dirname, 'data', 'incident_reports.json');
+
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to read file' });
+    }
+
+    const incidents = JSON.parse(data);
+    incidents.push(incidentData);
+
+    fs.writeFile(filePath, JSON.stringify(incidents, null, 2), 'utf8', (err) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to write file' });
+      }
+
+      res.status(200).json({ message: 'Incident data saved' });
+    });
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}/`);
 });
