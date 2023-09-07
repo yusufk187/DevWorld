@@ -9144,15 +9144,6 @@
     "point_of_interest": "Badlands"
   },
   {
-    "incident_id": "INC-2023-04-01-1017",
-    "timestamp": "2023-04-01T08:35:00.000",
-    "latitude": 947.8583906002,
-    "longitude": 885.8893068583,
-    "type": "Narrative ended",
-    "severity": "Medium",
-    "point_of_interest": "Badlands"
-  },
-  {
     "incident_id": "INC-2023-04-01-1018",
     "timestamp": "2023-04-01T12:49:00.000",
     "latitude": 1362.2222001887,
@@ -11797,15 +11788,6 @@
     "type": "Host Destroyed",
     "severity": "Critical",
     "point_of_interest": "Python Pass"
-  },
-  {
-    "incident_id": "INC-2023-06-08-1312",
-    "timestamp": "2023-06-08T13:52:00.000",
-    "latitude": 881.7559257645,
-    "longitude": 856.3268987395,
-    "type": "Decor destroyed",
-    "severity": "Critical",
-    "point_of_interest": "Sweetwater"
   },
   {
     "incident_id": "INC-2023-06-09-1313",

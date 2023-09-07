@@ -7,6 +7,10 @@
   margin: auto;
 }
 
+/* leaflet container */
+.leaflet-container {
+  background-color: rgba(9, 22, 41,1); 
+}
 /* Override Leaflet popup styles */
 .leaflet-popup-content {
   max-width: fit-content;
