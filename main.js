@@ -158,8 +158,8 @@ function createIncidentIcon(incident) {
 
 function loadIncidents() {
     fetch("data/incident_reports.json")
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
             const incidentMarkers = [];
             const clusterColors = {
                 Critical: "rgba(255, 0, 120, 0.5)",
@@ -170,7 +170,7 @@ function loadIncidents() {
             };
 
             const clusterOptions = {
-                iconCreateFunction: cluster => {
+                iconCreateFunction: (cluster) => {
                     const clusterMarkers = cluster.getAllChildMarkers();
                     let clusterColor = clusterColors.default;
 
@@ -192,7 +192,7 @@ function loadIncidents() {
                 },
             };
 
-            data.forEach(incident => {
+            data.forEach((incident) => {
                 const { latitude: lat, longitude: lng } = incident;
                 const boundaryLat = 120;
                 const boundaryLng = 120;
@@ -207,37 +207,46 @@ function loadIncidents() {
                 marker.incident_id = incident.incident_id;
                 marker.incidentSeverity = incident.severity;
 
-                const popupContent = document.createElement('div');
-                popupContent.classList.add('custom-popup');
+                const popupContent = document.createElement("div");
+                popupContent.classList.add("custom-popup");
                 popupContent.innerHTML = `
-                    <div class="bg-teal-300 px-4 py-3 rounded-t-md">
-                        <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">Incident Report</h2>
-                    </div>
-                    <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white">
-                        <p><b>Incident ID:</b> ${incident.incident_id}</p>
-                        <p><b>Timestamp:</b> ${incident.timestamp}</p>
-                        <p><b>Type:</b> ${incident.type}</p>
-                        <p><b>Severity:</b> ${incident.severity}</p>
-                        <p><b>Point of Interest:</b> ${incident.point_of_interest}</p>
-                        <p>Description: ${incident.description}</p>
-                        <div class="mb-4 flex flex-row gap-4 px-2">
-                        <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="modalSaveButton">File Incident</button>
-                        <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="delete-${incident.incident_id}">Remove report</button>
-                        </div>
-                    </div>
-                `;
+            <div class="flex justify-center flex-col">
+            <div class="bg-teal-300 px-4 py-3 rounded-t-md text-center">
+                <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">Incident Report</h2>
+            </div>
+            <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white text-center">
+                <p><b>Incident ID:</b> ${incident.incident_id}</p>
+                <p><b>Timestamp:</b> ${incident.timestamp}</p>
+                <p><b>Type:</b> ${incident.type}</p>
+                <p><b>Severity:</b> ${incident.severity}</p>
+                <p><b>Point of Interest:</b> ${incident.point_of_interest}</p>
+                <p>Description: ${incident.description}</p>
+                <div class="mb-4 flex justify-center items-center gap-2 px-2 pr-2 mx-4">
+                    <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="editIncident">Edit Incident</button>
+                    <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="delete-${incident.incident_id}">Remove report</button>
+                </div>
+            </div>
+        </div>
+        
+        `;
 
                 // Get the Leaflet popup wrapper element
-                const popupWrapper = popupContent.closest('.leaflet-popup');
+                const popupWrapper = popupContent.closest(".leaflet-popup");
 
                 // Apply custom styles to the popup wrapper
                 if (popupWrapper) {
-                    popupWrapper.style.backgroundColor = 'transparent';
-                    popupWrapper.style.boxShadow = 'none';
-                    popupWrapper.style.border = 'none';
+                    popupWrapper.style.backgroundColor = "transparent";
+                    popupWrapper.style.boxShadow = "none";
+                    popupWrapper.style.border = "none";
                 }
 
                 marker.bindPopup(popupContent, { autoPan: true });
+
+                // Add an event listener to the "Edit Incident" button inside the popup
+                const editButton = popupContent.querySelector("#editIncident");
+                editButton.addEventListener("click", () => {
+                    editIncident(incident.incident_id, marker);
+                });
 
                 incidentMarkers.push(marker);
             });
@@ -246,15 +255,155 @@ function loadIncidents() {
             incidentsCluster.addLayers(incidentMarkers);
             map.addLayer(incidentsCluster);
 
-            incidentsCluster.on("clusterclick", event => {
+            incidentsCluster.on("clusterclick", (event) => {
                 displayClusterModal(event.layer.getAllChildMarkers());
             });
-
         })
-        .catch(error => console.error("Error loading incident_reports.json:", error));
+        .catch((error) => console.error("Error loading incident_reports.json:", error));
+
+// Function to edit an incident when the "Edit Incident" button is clicked
+function editIncident(incidentId, marker) {
+    // Get the incident data from the marker
+    const incident = {
+        incident_id: incidentId,
+        type: marker.incidentType, // Use marker properties
+        severity: marker.incidentSeverity, // Use marker properties
+        description: marker.incidentDescription, // Use marker properties
+    };
+
+    // Create a modal container for editing
+    const editModalContainer = document.createElement('div');
+    editModalContainer.classList.add(
+        'fixed', 'top-1/2', 'left-1/2', 'transform', '-translate-x-1/2', '-translate-y-1/2',
+        'bg-black', 'bg-opacity-60', 'shadow-lg', 'rounded-md', 'text-white', 'z-50'
+    );
+
+    // Add the HTML content to the edit modal container
+    editModalContainer.innerHTML = `
+    <!-- Modal Header -->
+    <div class="bg-teal-300 px-4 py-3 rounded-t-md">
+        <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">Edit Incident Report</h2>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white">
+        <form id="editIncidentForm">
+
+            <input type="hidden" name="incident_id" value="${incident.incident_id}">
+
+            <div class="mb-4">
+                <label for="type" class="block font-semibold mb-2">Incident Type</label>
+                <select id="editType" name="type" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
+                    <option value="Decor destroyed">Decor destroyed</option>
+                    <option value="Terrain destroyed">Terrain destroyed</option>
+                    <option value="Narrative ended">Narrative ended</option>
+                    <option value="Malfunction">Malfunction</option>
+                    <option value="Host Destroyed">Host Destroyed</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="severity" class="block font-semibold mb-2">Severity</label>
+                <select id="editSeverity" name="severity" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
+                    <option value="Critical">Critical</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="description" class="block font-semibold mb-2">Description</label>
+                <textarea id="editDescription" name="description" required class="w-full px-3 py-2 border rounded-sm bg-transparent"></textarea>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Modal Buttons -->
+    <div class="flex justify-end p-4 sm:p-7">
+        <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="editModalSaveButton">Save Changes</button>
+        <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="editModalCancelButton">Cancel</button>
+    </div>
+`;
+
+    // Set initial values in the edit form
+    const editTypeInput = editModalContainer.querySelector('#editType');
+    const editSeverityInput = editModalContainer.querySelector('#editSeverity');
+    const editDescriptionInput = editModalContainer.querySelector('#editDescription');
+    editTypeInput.value = incident.type;
+    editSeverityInput.value = incident.severity;
+    editDescriptionInput.value = incident.description;
+
+    // Add an event listener to close the edit modal when the "Cancel" button is clicked
+    const editModalCancelButton = editModalContainer.querySelector('#editModalCancelButton');
+    editModalCancelButton.addEventListener('click', () => {
+        document.body.removeChild(editModalContainer);
+    });
+
+    // Add an event listener for the "Save Changes" button
+    const editModalSaveButton = editModalContainer.querySelector('#editModalSaveButton');
+    editModalSaveButton.addEventListener('click', async () => {
+        // Get the edited data from the form
+        const editedIncident = {
+            incident_id: incident.incident_id,
+            type: editTypeInput.value,
+            severity: editSeverityInput.value,
+            description: editDescriptionInput.value,
+        };
+
+        // Send the edited data to the server for updating
+        try {
+            const response = await fetch('http://localhost:3000/update-incident', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(editedIncident),
+            });
+
+            if (response.ok) {
+                // Data was successfully updated, you can handle success here
+                console.log('Incident data updated successfully');
+            } else {
+                // Handle any errors that may occur during the request
+                console.error('Failed to update incident data');
+                console.error(response);
+            }
+        } catch (error) {
+            console.error('Error while updating incident data:', error);
+        }
+
+        // Close the edit modal
+        document.body.removeChild(editModalContainer);
+
+        // Update the incident marker with the edited data
+        marker.incidentType = editedIncident.type;
+        marker.incidentSeverity = editedIncident.severity;
+        marker.incidentDescription = editedIncident.description;
+
+        // Update the popup content to reflect the changes
+        marker.getPopup().setContent(createCustomPopup(marker));
+    });
+
+    // Append the edit modal container to the body
+    document.body.appendChild(editModalContainer);
 }
 
-// PLay sound on custom popup open
+    // Inside the loadIncidents() function, add an event listener to the "Edit Incident" button
+    map.on('popupopen', function (e) {
+        const incidentId = e.popup._source.incident_id;
+        const marker = e.popup._source;
+        const editButton = document.getElementById('editIncident');
+
+        if (editButton) {
+            editButton.addEventListener('click', function () {
+                editIncident(incidentId, marker);
+            });
+        }
+    });
+}
+
 map.on('popupopen', function (e) {
     const audio = new Audio('sound/open.mp3');
     audio.play();
@@ -535,7 +684,7 @@ async function displayModal(lat, lng) {
         formDataObject.incident_id = generateIncidentID();
         formDataObject.timestamp = setCurrentTimestamp();
         formDataObject.point_of_interest = await findMarkerLocation(lat, lng);
-        
+
 
         // Send the form data to the server for processing and storage
         try {
@@ -586,7 +735,7 @@ map.on("click", async (e) => {
     // Play a sound effect
     const audio = new Audio('sound/open.mp3');
     audio.play();
-    
+
     // Call the handleMapClick function with the event and perform other actions as needed
     handleMapClick(e);
 });

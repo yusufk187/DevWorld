@@ -1566,15 +1566,6 @@
     "point_of_interest": "Mesa"
   },
   {
-    "incident_id": "INC-2022-10-08-175",
-    "timestamp": "2022-10-08T18:41:00.000",
-    "latitude": 1320.7602163126,
-    "longitude": 913.1802816717,
-    "type": "Decor destroyed",
-    "severity": "Medium",
-    "point_of_interest": "Sweetwater"
-  },
-  {
     "incident_id": "INC-2022-10-09-176",
     "timestamp": "2022-10-09T19:49:00.000",
     "latitude": 1384.077685112,
