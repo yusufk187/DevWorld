@@ -1,6 +1,6 @@
 const map = L.map("map", {
     crs: L.CRS.Simple,
-    minZoom: -1.5,
+    minZoom: -1,
     maxZoom: 4,
 }).setView([1024, 1024], -1);
 
@@ -52,6 +52,7 @@ function createCustomPOIIcon(poi) {
     img.src = iconUrl;
     img.width = 26;
     img.height = 26;
+    img.className = 'custom-image'; 
 
     const filters = {
         peaceful: "sepia(100%) saturate(10000%) hue-rotate(120deg)",
@@ -115,6 +116,7 @@ function createCustomIncidentIcon(incident) {
     img.src = iconUrl;
     img.width = 22;
     img.height = 22;
+    img.className = 'custom-image'; // Add this line to set the custom-image class
 
     const filters = {
         Critical: `sepia(100%) saturate(10000%) hue-rotate(260deg) opacity(1)`,
@@ -203,18 +205,6 @@ function loadIncidents() {
         })
         .catch(error => console.error("Error loading incident_reports.json:", error));
 }
-
-function getIncidentTypes() {
-    fetch("data/incident_reports.json")
-        .then(response => response.json())
-        .then(data => {
-            const incidentTypes = [...new Set(data.map(incident => incident.type))];
-            console.log(incidentTypes);
-        })
-        .catch(error => console.error("Error loading incident_reports.json:", error));
-}
-
-getIncidentTypes();
 
 const coordControl = L.control({ position: "topright" });
 
