@@ -67,6 +67,35 @@ function createCustomIcon(poi) {
     return customIcon;
 }
 
+function createCustomPopup(poi) {
+    const popupContent = document.createElement('div');
+    popupContent.innerHTML = `
+        <div class="bg-teal-300 px-4 py-3 rounded-t-md">
+            <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">Point of Interest</h2>
+        </div>
+
+        <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white">
+            <p><b>Title:</b> ${poi.title}</p>
+            <p><b>Type:</b> ${poi.type}</p>
+            <p><b>Narrative Level:</b> ${poi.narrative_level}</p>
+            <p>${poi.description}</p>
+        </div>
+        
+    `;
+
+    // Get the Leaflet popup wrapper element
+    const popupWrapper = popupContent.closest('.leaflet-popup');
+
+    // Apply custom styles to the popup wrapper
+    if (popupWrapper) {
+        popupWrapper.style.backgroundColor = 'transparent';
+        popupWrapper.style.boxShadow = 'none';
+        popupWrapper.style.border = 'none';
+    }
+
+    return popupContent;
+}
+
 function loadPOIs() {
     fetch("data/points_of_interest.json")
         .then(response => response.json())
@@ -77,13 +106,8 @@ function loadPOIs() {
                 const customIcon = createCustomIcon(poi);
                 const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
 
-                marker.bindPopup(
-                    `<b>Title:</b> ${poi.title}<br>
-            <b>Type:</b> ${poi.type}<br>
-            <b>Narrative Level:</b> ${poi.narrative_level}<br>
-            ${poi.description}`,
-                    { autoPan: true }
-                );
+                // Bind the custom popup content to the marker
+                marker.bindPopup(createCustomPopup(poi), { autoPan: true });
             });
         })
         .catch(error => console.error("Error loading points_of_interest.json:", error));
@@ -182,15 +206,37 @@ function loadIncidents() {
                 const marker = L.marker([lat, lng], { icon: customIcon });
                 marker.incident_id = incident.incident_id;
                 marker.incidentSeverity = incident.severity;
-                marker.bindPopup(
-                    `<b>Incident ID:</b> ${incident.incident_id}<br>
-                <b>Timestamp:</b> ${incident.timestamp}<br>
-                <b>Type:</b> ${incident.type}<br>
-                <b>Severity:</b> ${incident.severity}<br>
-                <b>Point of Interest:</b> ${incident.point_of_interest}<br>
-                <button id="delete-${incident.incident_id}">Verwijderen</button>`,
-                    { autoPan: true }
-                );
+
+                const popupContent = document.createElement('div');
+                popupContent.innerHTML = `
+                    <div class="bg-teal-300 px-4 py-3 rounded-t-md">
+                        <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">Incident Report</h2>
+                    </div>
+                    <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white">
+                        <p><b>Incident ID:</b> ${incident.incident_id}</p>
+                        <p><b>Timestamp:</b> ${incident.timestamp}</p>
+                        <p><b>Type:</b> ${incident.type}</p>
+                        <p><b>Severity:</b> ${incident.severity}</p>
+                        <p><b>Point of Interest:</b> ${incident.point_of_interest}</p>
+                        <p>Description: ${incident.description}</p>
+                        <div class="mb-4 flex flex-row gap-4 px-2">
+                        <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="modalSaveButton">File Incident</button>
+                        <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="delete-${incident.incident_id}">Remove report</button>
+                        </div>
+                    </div>
+                `;
+
+                // Get the Leaflet popup wrapper element
+                const popupWrapper = popupContent.closest('.leaflet-popup');
+
+                // Apply custom styles to the popup wrapper
+                if (popupWrapper) {
+                    popupWrapper.style.backgroundColor = 'transparent';
+                    popupWrapper.style.boxShadow = 'none';
+                    popupWrapper.style.border = 'none';
+                }
+
+                marker.bindPopup(popupContent, { autoPan: true });
 
                 incidentMarkers.push(marker);
             });
@@ -218,7 +264,11 @@ function deleteIncident(incidentId, marker) {
         .then(response => response.json())
         .then(data => {
             if (data.message === 'Incident deleted') {
-                map.removeLayer(marker);
+                const audio = new Audio('sound/close.mp3');
+                audio.play();
+                setTimeout(function () {
+                    map.removeLayer(marker);
+                }, 1000);
             }
         })
         .catch(error => console.error("Error deleting incident:", error));
@@ -236,10 +286,22 @@ coordControl.onAdd = function (map) {
 
 coordControl.addTo(map);
 
-map.on("mousemove", function (event) {
-    var lat = event.latlng.lat;
-    var lng = event.latlng.lng;
-    coordControl._div.innerHTML = `Lat: ${lat.toFixed(2)}, Lng: ${lng.toFixed(2)}`;
+map.on('popupopen', function (e) {
+    const incidentId = e.popup._source.incident_id;
+    const marker = e.popup._source;
+    const deleteButton = document.getElementById(`delete-${incidentId}`);
+
+    if (deleteButton) {
+        deleteButton.addEventListener('click', function () {
+            // Play a sound effect
+            const audio = new Audio('sound/close.mp3');
+            audio.play();
+            // 1 second delay before deleting the marker
+            setTimeout(function () {
+                deleteIncident(incidentId, marker);
+            }, 1000);
+        });
+    }
 });
 
 function showBorder() {
@@ -264,7 +326,11 @@ map.on('popupopen', function (e) {
 
     if (deleteButton) {
         deleteButton.addEventListener('click', function () {
-            deleteIncident(incidentId, marker);
+            const audio = new Audio('sound/close.mp3');
+            audio.play();
+            setTimeout(function () {
+                deleteIncident(incidentId, marker);
+            }, 1000);
         });
     }
 });
@@ -361,73 +427,73 @@ async function displayModal(lat, lng) {
 
     // Add the HTML content to the modal container
     modalContainer.innerHTML = `
-        <!-- Modal Header -->
-        <div class="bg-teal-300 px-4 py-3 rounded-t-md">
-            <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">New Incident Report</h2>
-        </div>
+            <!-- Modal Header -->
+            <div class="bg-teal-300 px-4 py-3 rounded-t-md">
+                <h2 class="text-xl font-semibold text-white bold uppercase text-shadow">New Incident Report</h2>
+            </div>
 
-        <!-- Modal Content -->
-        <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white">
-            <form id="incidentForm">
+            <!-- Modal Content -->
+            <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white">
+                <form id="incidentForm">
 
-                <div class="mb-4">
-                    <p>Incident ID: <span id="incidentId"></span></p>
-                </div>
-                
-                <div class="mb-4">
-                    <p>Timestamp: <span id="timestamp"></span></p>
-                </div>
+                    <div class="mb-4">
+                        <p>Incident ID: <span id="incidentId"></span></p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p>Timestamp: <span id="timestamp"></span></p>
+                    </div>
 
-                <div class="mb-4">
-                    <div class="flex space-x-4">
-                        <div class="w-1/2">
-                            <p id="latitudeValue">Latitude: ${lat}</p>
-                        </div>
-                        <div class="w-1/2">
-                            <p id="longitudeValue">Longitude: ${lng}</p>
+                    <div class="mb-4">
+                        <div class="flex space-x-4">
+                            <div class="w-1/2">
+                                <p id="latitudeValue">Latitude: ${lat}</p>
+                            </div>
+                            <div class="w-1/2">
+                                <p id="longitudeValue">Longitude: ${lng}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="mb-4">
-                    <p>Closest POI: <span id="poiValue"></span></p>
-                </div>
+                    <div class="mb-4">
+                        <p>Closest POI: <span id="poiValue"></span></p>
+                    </div>
 
-                <div class="mb-4">
-                    <label for="type" class="block font-semibold mb-2">Incident Type</label>
-                    <select id="type" name="type" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
-                        <option value="Decor destroyed">Decor destroyed</option>
-                        <option value="Terrain destroyed">Terrain destroyed</option>
-                        <option value="Narrative ended">Narrative ended</option>
-                        <option value="Malfunction">Malfunction</option>
-                        <option value="Host Destroyed">Host Destroyed</option>
-                    </select>
-                </div>
-      
-                <div class="mb-4">
-                    <label for="severity" class="block font-semibold mb-2">Severity</label>
-                    <select id="severity" name="severity" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
-                        <option value="Critical">Critical</option>
-                        <option value="High">High</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Low">Low</option>
-                    </select>
-                </div>
+                    <div class="mb-4">
+                        <label for="type" class="block font-semibold mb-2">Incident Type</label>
+                        <select id="type" name="type" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
+                            <option value="Decor destroyed">Decor destroyed</option>
+                            <option value="Terrain destroyed">Terrain destroyed</option>
+                            <option value="Narrative ended">Narrative ended</option>
+                            <option value="Malfunction">Malfunction</option>
+                            <option value="Host Destroyed">Host Destroyed</option>
+                        </select>
+                    </div>
+        
+                    <div class="mb-4">
+                        <label for="severity" class="block font-semibold mb-2">Severity</label>
+                        <select id="severity" name="severity" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
+                            <option value="Critical">Critical</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
 
-                <div class="mb-4">
-                    <label for="description" class="block font-semibold mb-2">Describe the incident</label>
-                    <textarea id="description" name="description" required class="w-full px-3 py-2 border rounded-sm bg-transparent"></textarea>
-                </div>
+                    <div class="mb-4">
+                        <label for="description" class="block font-semibold mb-2">Describe the incident</label>
+                        <textarea id="description" name="description" required class="w-full px-3 py-2 border rounded-sm bg-transparent"></textarea>
+                    </div>
 
-            </form>
-        </div>
+                </form>
+            </div>
 
-        <!-- Modal Buttons -->
-        <div class="flex justify-end p-4 sm:p-7 dark:bg-slate-900">
-            <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="modalSaveButton">File Incident</button>
-            <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="modalCancelButton">Cancel report</button>
-        </div>
-    `;
+            <!-- Modal Buttons -->
+            <div class="flex justify-end p-4 sm:p-7">
+                <button class="px-4 py-2 bg-teal-300 hover:bg-teal-400 text-black rounded-sm mr-2" id="modalSaveButton">File Incident</button>
+                <button class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm" id="modalCancelButton">Cancel report</button>
+            </div>
+        `;
 
     // Append the modal container to the body
     document.body.appendChild(modalContainer);
@@ -445,9 +511,6 @@ async function displayModal(lat, lng) {
     // Add an event listener for the "Save Changes" button
     const saveButton = modalContainer.querySelector('#modalSaveButton');
     saveButton.addEventListener('click', async () => {
-        // Play a sound effect
-        const audio = new Audio('sound/open.mp3');
-        audio.play();
 
         // Gather form data
         const incidentForm = document.getElementById('incidentForm');
@@ -464,6 +527,8 @@ async function displayModal(lat, lng) {
         formDataObject.longitude = lng;
         formDataObject.incident_id = generateIncidentID();
         formDataObject.timestamp = setCurrentTimestamp();
+        formDataObject.point_of_interest = await findMarkerLocation(lat, lng);
+        
 
         // Send the form data to the server for processing and storage
         try {
@@ -510,6 +575,14 @@ async function displayModal(lat, lng) {
 }
 
 // Functions
-map.on("click", handleMapClick);
+map.on("click", async (e) => {
+    // Play a sound effect
+    const audio = new Audio('sound/open.mp3');
+    audio.play();
+    
+    // Call the handleMapClick function with the event and perform other actions as needed
+    handleMapClick(e);
+});
+
 loadIncidents();
 loadPOIs();

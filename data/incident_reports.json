@@ -13914,15 +13914,6 @@
     "point_of_interest": "Python Pass"
   },
   {
-    "incident_id": "INC-2023-07-27-1550",
-    "timestamp": "2023-07-27T04:15:00.000",
-    "latitude": 1162.108669739,
-    "longitude": 1205.515620857,
-    "type": "Decor destroyed",
-    "severity": "Medium",
-    "point_of_interest": "Ghost Nation"
-  },
-  {
     "incident_id": "INC-2023-07-27-1551",
     "timestamp": "2023-07-27T04:47:00.000",
     "latitude": 1791.6196713541,
@@ -15388,5 +15379,33 @@
     "type": "Malfunction",
     "severity": "Medium",
     "point_of_interest": "Maeve's Homestead"
+  },
+  {
+    "type": "Decor destroyed",
+    "severity": "Critical",
+    "description": "test",
+    "latitude": 970,
+    "longitude": 1074,
+    "incident_id": "INC-2023-09-07-148",
+    "timestamp": "2023-09-07T17:09:42.731Z"
+  },
+  {
+    "type": "Decor destroyed",
+    "severity": "Critical",
+    "description": "",
+    "latitude": 1012,
+    "longitude": 1126,
+    "incident_id": "INC-2023-09-07-70",
+    "timestamp": "2023-09-07T17:09:53.580Z"
+  },
+  {
+    "type": "Decor destroyed",
+    "severity": "Critical",
+    "description": "test",
+    "latitude": 1153.5,
+    "longitude": 1191,
+    "incident_id": "INC-2023-09-07-696",
+    "timestamp": "2023-09-07T17:16:20.578Z",
+    "point_of_interest": "Sweetwater"
   }
 ]

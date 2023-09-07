@@ -19,24 +19,21 @@
   overflow-y: auto;
   overflow-x: hidden;
   background-color: rgba(9, 22, 41, 0.8);
-  color: white;
-  padding: 1rem;
-  /* Adjust padding as needed */
+  color: transparent;
 }
 
+/* Hide the Leaflet popup content wrapper */
 .leaflet-popup-content-wrapper {
-  border-radius: 0;
-  /* Remove border-radius */
-  background-color: transparent;
-  /* Remove background-color */
-  border: none;
-  /* Remove border */
+  background-color: transparent !important; /* Make the background transparent */
+  border: none !important; /* Remove the border */
+  padding: 0 !important; /* Remove any padding */
+
+  /* Ensure the close button (X) is white */
+  .leaflet-popup-close-button {
+    color: white !important;
+  }
 }
 
-.leaflet-popup-tip-container {
-  display: none;
-  /* Hide the tip */
-}
 
 .custom-cluster-icon {
   width: 30px;
