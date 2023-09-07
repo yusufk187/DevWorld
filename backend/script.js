@@ -19,10 +19,13 @@ function getInfo() {
 		if(username == objPeople[i].username && password == objPeople[i].password) {
 			console.log(username + " is logged in!!!")
 			// stop the function if this is found to be true
-            window.location.href = 'http://www.google.com';
+            window.location.href = '/index.html'
 			return
             
 		}
 	}
 	console.log("incorrect username or password")
+
+
+
 }
