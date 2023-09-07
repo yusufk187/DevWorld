@@ -389,19 +389,6 @@ function editIncident(incidentId, marker) {
     // Append the edit modal container to the body
     document.body.appendChild(editModalContainer);
 }
-
-    // Inside the loadIncidents() function, add an event listener to the "Edit Incident" button
-    map.on('popupopen', function (e) {
-        const incidentId = e.popup._source.incident_id;
-        const marker = e.popup._source;
-        const editButton = document.getElementById('editIncident');
-
-        if (editButton) {
-            editButton.addEventListener('click', function () {
-                editIncident(incidentId, marker);
-            });
-        }
-    });
 }
 
 map.on('popupopen', function (e) {
