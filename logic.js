@@ -35,6 +35,41 @@ function setCurrentTimestamp() {
     return timestamp;
 }
 
+// Function to find the current user's location to a POI
+function findMarkerLocation(lat, lng) {
+    return fetch("data/points_of_interest.json")
+        .then(response => response.json())
+        .then(data => {
+            const userLocation = { lat, lng };
+            const nearestPOI = findNearestPOI(userLocation, data.features);
+            return nearestPOI ? nearestPOI.title : "No closest POI found";
+        });
+}
+
+// Helper function to find the nearest POI
+function findNearestPOI(userLocation, poiData) {
+    let nearestDistance = Infinity;
+    let nearestPOI = null;
+
+    poiData.forEach(poi => {
+        const poiLat = poi.latitude;
+        const poiLng = poi.longitude;
+
+        const latDiff = Math.abs(userLocation.lat - poiLat);
+        const lngDiff = Math.abs(userLocation.lng - poiLng);
+
+        // Calculate a simple "distance" based on lat and lng differences
+        const distance = latDiff + lngDiff;
+
+        if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearestPOI = poi;
+        }
+    });
+
+    return nearestPOI;
+}
+
 // Step 3: Implement a function to display the modal and accept lat/lng as arguments
 function displayModal(lat, lng) {
     // Create a modal container
@@ -52,18 +87,18 @@ function displayModal(lat, lng) {
         </div>
 
         <!-- Modal Content -->
-        <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm">
+        <div class="bg-transparent p-4 sm:p-7 bg-opacity-60 text-sm text-white">
             <form id="incidentForm">
 
                 <div class="mb-4">
-                    <p>Incident ID: <span id="incidentId" class="text-white"></span></p>
+                    <p>Incident ID: <span id="incidentId"></span></p>
                 </div>
                 
                 <div class="mb-4">
-                    <p>Timestamp: <span id="timestamp" class="text-white"></span></p>
+                    <p>Timestamp: <span id="timestamp"></span></p>
                 </div>
 
-                <div class="mb-4 text-white">
+                <div class="mb-4">
                     <div class="flex space-x-4">
                         <div class="w-1/2">
                             <p id="latitudeValue">Latitude: ${lat}</p>
@@ -74,7 +109,30 @@ function displayModal(lat, lng) {
                     </div>
                 </div>
 
-                <!-- Rest of your form elements -->
+                <div class="mb-4">
+                    <p>Closest POI: <span id="poiValue"></span></p>
+                </div>
+
+                <div class="mb-4">
+                    <label for="type" class="block font-semibold mb-2">Incident Type</label>
+                    <select id="type" name="type" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
+                        <option value="Decor destroyed">Decor destroyed</option>
+                        <option value="Terrain destroyed">Terrain destroyed</option>
+                        <option value="Narrative ended">Narrative ended</option>
+                        <option value="Malfunction">Malfunction</option>
+                        <option value="Host Destroyed">Host Destroyed</option>
+                    </select>
+                </div>
+      
+                <div class="mb-4">
+                    <label for="severity" class="block font-semibold mb-2">Severity</label>
+                    <select id="severity" name="severity" required class="w-full px-3 py-2 border rounded-sm bg-transparent">
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
 
             </form>
         </div>
@@ -112,6 +170,11 @@ function displayModal(lat, lng) {
     const timestampElement = document.getElementById('timestamp');
     const currentTimestamp = setCurrentTimestamp(); // Call the function to get the timestamp
     timestampElement.textContent = currentTimestamp; // Set the timestamp in the HTML
+
+    // Find the nearest POI
+    const poiElement = document.getElementById('poiValue');
+    const nearestPOI = findMarkerLocation(); // Call the function to get the nearest POI
+    poiElement.textContent = nearestPOI; // Set the POI in the HTML
 }
 
 // Step 4: Attach the onClick event handler to the map
