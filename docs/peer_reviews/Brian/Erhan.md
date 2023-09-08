@@ -2,7 +2,7 @@
 
 ##### Who are you reviewing?
 
-Person name: Ozan
+Person name: Erhan
 
 
 ## Whats their score?
@@ -14,7 +14,6 @@ Person name: Ozan
 | Asks for feedback | + |
 | Gives feedback | + |
 | Concentration/focus | + |
-| Google Analytics | + |
 
 ## Points
-I give 30 out of 100 points to Ozan.
+I give 25 out of 100 points to Ozan.

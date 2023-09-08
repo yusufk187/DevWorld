@@ -2,7 +2,7 @@
 
 ##### Who are you reviewing?
 
-Person name: Jayne
+Person name: Batuhan
 
 ## Whats their score?
 
@@ -10,9 +10,9 @@ Person name: Jayne
 | ------ | ------ |
 | Discipline & Work Ethic | ++ |
 | Helpfulness | ++ |
-| Asks for feedback | + |
+| Asks for feedback | - |
 | Gives feedback | ++ |
-| Concentration/focus | +++ |
+| Concentration/focus | ++ |
 
 ## Points
-I give 37 out of 100 points to Jayne.
+I give 30 out of 100 points to Batuhan.
