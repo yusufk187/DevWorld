@@ -1,12 +1,12 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const cors = require('cors');
+const cors = require('cors'); // Import the cors package
 
 const app = express();
 const port = 3000;
 
-app.use(cors());
+app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
 
 app.post('/delete-incident', (req, res) => {
