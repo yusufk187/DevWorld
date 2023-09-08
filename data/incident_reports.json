@@ -4059,15 +4059,6 @@
     "point_of_interest": "Sweetwater Hills"
   },
   {
-    "incident_id": "INC-2022-12-10-453",
-    "timestamp": "2022-12-10T03:23:00.000",
-    "latitude": 1410.8789237995,
-    "longitude": 1207.6153011738,
-    "type": "Host Destroyed",
-    "severity": "High",
-    "point_of_interest": "Badlands"
-  },
-  {
     "incident_id": "INC-2022-12-10-454",
     "timestamp": "2022-12-10T02:30:00.000",
     "latitude": 838.840302223,
@@ -15408,5 +15399,15 @@
     "incident_id": "INC-2023-09-08-214",
     "timestamp": "2023-09-08T07:02:05.395Z",
     "point_of_interest": "Ghost Nation"
+  },
+  {
+    "type": "Host Destroyed",
+    "severity": "Critical",
+    "description": "RObert Ford is dead.",
+    "latitude": 1409.5,
+    "longitude": 1238.5,
+    "incident_id": "INC-2023-09-08-346",
+    "timestamp": "2023-09-08T10:09:12.984Z",
+    "point_of_interest": "Abernathy Ranch"
   }
 ]
