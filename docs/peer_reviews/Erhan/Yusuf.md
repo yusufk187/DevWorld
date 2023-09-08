@@ -2,18 +2,18 @@
 
 ##### Who are you reviewing?
 
-Person name: Jayne
+Person name: Yusuf
 
 
 ## Whats their score?
 
 | Rubric | Points (--, -, +/-, +, ++)|
 | ------ | ------ |
-| Discipline & Work Ethic |++  |
-| Helpfulness |+ |
+| Discipline & Work Ethic | + |
+| Helpfulness |++ |
 | Asks for feedback |+ |
 | Gives feedback |++  |
-| Concentration/focus |+  |
+| Concentration/focus | + |
 
 ## Points
-I give 40 out of 100 points to Jayne Elizabeth Kolsteeg.
+I give 30 out of 100 points to Yusuf

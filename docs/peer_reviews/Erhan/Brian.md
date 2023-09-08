@@ -16,4 +16,4 @@ Person name: Brian
 | Concentration/focus |+  |
 
 ## Points
-I give 30 out of 100 points to Brian.
+I give 50 out of 100 points to Brian.
