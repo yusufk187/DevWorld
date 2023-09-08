@@ -1,14 +1,15 @@
 Feedback Form
 Who are you reviewing?
-Person name: Jayne
+Person name: Ozan
 
 Whats their score?
 Rubric	Points (--, -, +/-, +, ++)
-Discipline & Work Ethic ++
+Discipline & Work Ethic	++
 Helpfulness	+
 Asks for feedback ++
-Gives feedback +
+Gives feedback ++
 Concentration/focus ++
 
 Points
-I give 35 out of 100 points to Jayne.
+
+Ik geef Erhan 25 punten 
