@@ -1,52 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="style.css"></link>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/x-icon" href="./images/mini_logos/delos.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/x-icon" href="./images/mini_logos/delos.png">
 </head>
 <body>
 
-    <div class="h-screen font-sans login bg-cover flex justify-center items-center">
-        <div class="max-w-lg">
+  <div
+    class="h-screen font-sans login bg-cover flex justify-center items-center">
+    <div class="max-w-lg">
+      <div class="leading-loose bg-transparent rounded p-10">
+        <!-- <div
+          class=" font-sans login bg-cover flex justify-center items-center flex-col"> -->
+
+          <img src="Delos_logo-removebg-preview.png" alt="Logo" class="w-64 h-64 ml-8">
+
           <div class="leading-loose bg-transparent rounded p-10">
+            
+
             <form class="max-w-sm m-4">
-              <p class="text-white text-center text-lg font-bold">LOGIN</p>
               <div class="mt-4">
-                <label class="block text-sm text-white" for="name">Name</label>
-                <input class=" input  px-5 py-1 text-gray-700 bg-gray-300 rounded focus:outline-none focus:bg-white"
-                  type="text" id="username" placeholder="Choose Username" aria-label="text" required>
+                <input
+                  class="input w-full px-5 py-1 text-white bg-transparent border-2 border-white rounded"
+                  type="text" id="username" placeholder="Username"
+                  aria-label="text" required>
               </div>
               <div class="mt-2">
-                <label class="block text-sm text-white">Password</label>
-                <input class=" input w-full px-5 py-1 text-gray-700 bg-gray-300 rounded focus:outline-none focus:bg-white"
-                  type="password" id="password"  placeholder="Choose Password" arial-label="password" required>
+                <input
+                  class="input w-full px-5 py-1 text-white bg-transparent border-2 border-white rounded"
+                  type="password" id="password" placeholder="Password"
+                  aria-label="password" required>
               </div>
               <div class="mt-4 flex justify-center">
-                <button class=" btn px-4 py-1 text-white font-light tracking-wider bg-gray-900 hover:bg-gray-800 rounded"
+                <button
+                  class="btn px-4 py-1 text-white font-light tracking-wider bg-transparent rounded"
                   type="button" onclick="getInfo()">Enter</button>
               </div>
             </form>
+            
           </div>
         </div>
       </div>
 
-
-</body>
-<script src="script.js" charset="utf-8"></script>
-<script>
+    </body>
+    <script src="script.js" charset="utf-8"></script>
+    <script>
 
 // If login succesful, sent to map.html
 
 
 </script>
-</html>
-
-
-
-
-
+  </html>
